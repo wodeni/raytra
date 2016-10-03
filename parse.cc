@@ -23,7 +23,7 @@ Material::Material(float3 diff, float3 spec, float r, float3 refl)
 void Parser::parse(const char *file,
                      std::vector<Surface *> &surfaces,
                      std::vector<Material *> &materials,
-                     Camera *camera) {
+                     Camera *&camera) {
     ifstream in(file);
     char buffer[1025];
     string cmd;

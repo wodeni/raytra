@@ -90,7 +90,7 @@ void POVRayParser::finalizeObject() {
 void POVRayParser::parse(const char *file,
         std::vector<Surface *> &surfaces,
         std::vector<Material *> &materials,
-        Camera *camera) {
+        Camera *&camera) {
     Parser::parse(file, surfaces, materials, camera);
     finalizeObject();
     if (aStr.empty()) {

@@ -66,7 +66,7 @@ class Parser {
         virtual void parse(const char *file,
                 std::vector<Surface *> &surfaces,
                 std::vector<Material *> &materials,
-                Camera *camera);
+                Camera *&camera);
 };
 
 
