@@ -4,22 +4,13 @@
 #include <sstream>
 #include <cstdlib>
 
+#include "raytra.h"
+#include "sphere.h"
+#include "point.h"
+
 using namespace std;
 
-Sphere::Sphere(float3 origin, float radius)
-    : origin(origin), radius(radius)
-{}
 
-Camera::Camera(float3 pos,
-               float3 dir,
-               float d, float iw, float ih,
-               int pw, int ph)
-    : pos(pos), dir(dir), d(d), iw(iw), ih(ih), pw(pw), ph(ph)
-{}
-
-Material::Material(float3 diff, float3 spec, float r, float3 refl) 
-    : diff(diff), spec(spec), r(r), refl(refl)
-{}
 void Parser::parse(const char *file,
                      std::vector<Surface *> &surfaces,
                      std::vector<Material *> &materials,
@@ -40,47 +31,46 @@ void Parser::parse(const char *file,
         if (cmd[0]=='/' or cmd.empty()) {
             continue;
         } else if (cmd=="s") {
-            float3 pos; float r;
+            Point pos; float r;
             iss >> pos >> r;
             //sphere(pos,r);
-            Surface *s = new Sphere(pos, r);
-            surfaces.push_back(s);
+            surfaces.push_back(new Sphere(pos, r));
         } else if (cmd=="t") {
-            float3 a,b,c;
+            Point a,b,c;
             iss >> a,b,c;
             //triangle(a,b,c);
         } else if (cmd=="p") {
-            float3 n; float d;
+            Point n; float d;
             iss >> n >> d;
             //plane(n,d);
         } else if (cmd=="c") {
-            float3 pos,dir; float d,iw,ih; int pw,ph;
+            Point pos; Vector3 dir; float d,iw,ih; int pw,ph;
             iss >> pos >> dir >> d >> iw >> ih >> pw >> ph;
             //camera(pos,dir,d,iw,ih,pw,ph);
             camera = new Camera(pos,dir,d,iw,ih,pw,ph);
         } else if (cmd=="l") {
             iss >> cmd;
             if (cmd=="p") {
-                float3 pos,rgb;
+                Point pos; Vector3 rgb;
                 iss >> pos >> rgb;
                 //pointLight(pos,rgb);
             } else if (cmd=="d") {
-                float3 dir,rgb;
+                Vector3 dir,rgb;
                 iss >> dir >> rgb;
                 //directionalLight(dir,rgb);
             } else if (cmd=="a") {
-                float3 rgb;
+                Vector3 rgb;
                 iss >> rgb;
                 //ambientLight(rgb);
             } else {
                 cout << "Parser error: invalid light at line " << line << endl;
             }
         } else if (cmd=="m") {
-            float3 diff,spec,refl; float r;
+            Vector3 diff,spec,refl; float r;
             iss >> diff >> spec >> r >> refl;
             //material(diff,spec,r,refl);
             Material *m = new Material(diff, spec, r, refl);
-            materials.push_back(m);
+            materials.push_back(new Material(diff, spec, r, refl));
         } else {
             cout << "Parser error: invalid command at line " << line << endl;
         }
