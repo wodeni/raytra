@@ -9,3 +9,7 @@ Point::Point(double a, double b, double c) {
 }
 
 
+std::ostream &operator<<(std::ostream& os, Point p) {
+    std::cout << "(" << p._a << ", " << p._b << ", " << p._c << ")";
+    return os;
+}
