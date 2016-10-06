@@ -1,4 +1,5 @@
 #include "vector3.h"
+#include <cmath>
 
 Vector3::Vector3() {
     _a = _b = _c = 0.0;
@@ -8,12 +9,30 @@ Vector3::Vector3(double a, double b, double c) {
     _a = a; _b = b; _c = c;
 }
 
-Vector3 Vector3::crossproduct(Vector3 rhs) {
+Vector3 Vector3::crossproduct(Vector3 &rhs) {
     double a = _b * rhs._c - _c * rhs._b; 
     double b = _c * rhs._a - _a * rhs._c;
     double c = _a * rhs._b - _b * rhs._a;
     Vector3 v(a, b, c);
     return v;
+}
+
+Vector3 Vector3::normalize() {
+    double a2 = _a * _a;
+    double b2 = _b * _b;
+    double c2 = _c * _c;
+    double len =  sqrt(a2 + b2 + c2);
+    Vector3 res(_a / len, _b / len, _c / len);
+    return res;
+}
+
+double Vector3::dotproduct(Vector3 &v) {
+    return _a * v._a + _b * v._b + _c * v._c;
+}
+
+Vector3 Vector3::operator+(Vector3 rhs) {
+    Vector3 res(_a + rhs._a, _b + rhs._b, _c + rhs._c);
+    return res;
 }
 
 std::ostream &operator<<(std::ostream& os, const Vector3 v) {

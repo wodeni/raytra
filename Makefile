@@ -10,7 +10,7 @@ prog_out:
 
 .PHONY: clean
 clean: 
-	rm -rf *.o core *.dSYM prog_out
+	rm -rf *.o core *.exr *.dSYM prog_out
 	
 .PHONY: all
 all: clean prog_out 
