@@ -1,5 +1,5 @@
-#ifndef VECTOR3_H
-#define VECTOR3_H
+#ifndef BASEMATH_H
+#define BASEMATH_H
 
 #include <iostream>
 
@@ -17,4 +17,14 @@ class Vector3 {
         friend std::ostream &operator<<(std::ostream&, Vector3);
 };
 
-#endif /* VECTOR3_H */
+class Point {
+    friend std::ostream &operator<<(std::ostream&, Point);
+    public:
+        double _a, _b, _c;
+        Point ();
+        Point (double, double, double);
+        Vector3 operator-(Point);
+};
+
+
+#endif /* BASEMATH_H */

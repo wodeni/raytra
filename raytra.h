@@ -1,27 +1,36 @@
+/**
+ * @author: Wode "Nimo" Ni
+ * @version: 2016/10/07
+ */
 #ifndef RAYTRA_H
 #define RAYTRA_H
 #include <vector>
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
 #include "material.h"
-#include "point.h"
-#include "vector3.h"
-
-class Ray {
-    public:
-        Point _origin;
-        Vector3 _dir;
-        Ray (Point, Vector3);
-};
-
-class Surface;
+#include "basemath.h"
+#include "ray.h"
 
 class Camera {
 
-    // for testing purpose
     friend std::ostream &operator<<(std::ostream &, const Camera &);
 
     public:
+        Camera() {}
+        void initCamera (Point&, Vector3&, float&, 
+                float&, float&, int&, int&, 
+                std::vector<Material *>&, std::vector<Surface *>&);
+        ~Camera();
+        Ray construct_ray (int, int);
+        void render(const char filename[]);
+        void writeRgba(const char filename[], Imf::Rgba *pixels);
+        void setmaterials(const std::vector<Material *> &m) {
+            _materials = m;
+        }
+        void setsurfaces(const std::vector<Surface *> &s) {
+            _surfaces = s;
+        }
+    private:
         Point _eye;
 
         double _d; // Focal length
@@ -33,10 +42,8 @@ class Camera {
         double _iw, _ih;
         int _pw, _ph;
 
-        Camera (Point&, Vector3&, float, float, float, int, int);
-        Ray construct_ray (int, int);
-void render(Imf::Array2D<Imf::Rgba> &, std::vector<Surface *>&, std::vector<Material *>&);
-        void writeRgba(const char filename[], Imf::Rgba *pixels);
+        std::vector<Material *> _materials;
+        std::vector<Surface *> _surfaces;
 };
 
 #endif /* RAYTRA_H */
