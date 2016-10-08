@@ -59,7 +59,7 @@ Camera& Parser::parse(const char *file) {
         } else if (cmd=="t") {
             // triangle
             Point a,b,c;
-            iss >> a,b,c;
+            iss >> a >> b >> c;
         } else if (cmd=="p") {
             // Plane
             Point n; float d;

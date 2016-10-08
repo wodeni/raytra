@@ -5,6 +5,7 @@
 #ifndef RAYTRA_H
 #define RAYTRA_H
 #include <vector>
+#include <algorithm>
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
 #include "material.h"

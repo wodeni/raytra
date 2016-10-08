@@ -33,11 +33,11 @@ Camera::~Camera() {
 #if DEBUG
     cout << "Destructing Camera..." << endl;
 #endif
-    for(int i = 0; i < _materials.size(); ++i) {
+    for(std::size_t i = 0; i < _materials.size(); ++i) {
         delete _materials[i];
     }
     _materials.clear();
-    for(int i = 0; i < _surfaces.size(); ++i) {
+    for(std::size_t i = 0; i < _surfaces.size(); ++i) {
         delete _surfaces[i];
     }
     _surfaces.clear();
@@ -84,7 +84,7 @@ void Camera::render(const char filename[]) {
             Rgba& px = res[_ph - 1 - j][i]; // the current px in the picture
 
             // Intersect the scene
-            for(int k = 0; k < _surfaces.size(); ++k) {
+            for(std::size_t k = 0; k < _surfaces.size(); ++k) {
                 Intersection tmp;
                 tmp = _surfaces[k]->intersect(r);
                 if(tmp.Intersected()) {

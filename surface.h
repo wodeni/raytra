@@ -54,7 +54,7 @@ class Sphere : public Surface {
             : _origin(origin), _radius(radius)
         {}
         
-        ~Sphere() { std::cout << "Sphere deallocated." << std::endl; }
+        ~Sphere() {}
         virtual Intersection intersect(Ray&);
         virtual std::ostream& doprint(std::ostream &os) const {
             os << _origin <<  " " << _radius;
