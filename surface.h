@@ -7,15 +7,28 @@
  * @author: Wode "Nimo" Ni
  * @version: 2016/10/07
  */
+class P_Light {
+    public:
+        P_Light(Point position, Vector3 color) 
+            : _position(position), _color(color) {}
+        Vector3 getColor() const { return _color; }
+        Point getPosition() const { return _position; }
+    private:
+        Point _position;
+        Vector3 _color;
+};
 class Intersection {
     public:
         int surfaceid() const { return _surfaceid; }
         void setsurfaceid(const int id) { _surfaceid = id; }
         bool Intersected() const { return _intersected; }
         void setIntersected(const bool& flag) { _intersected = flag; }
-        void setTs(const double &t1, const double &t2) {
-            _t1 = t1; _t2 = t2;
-        }
+        double getT() const { return std::min(_t1, _t2); }
+        void setTs(const double &t1, const double &t2) { _t1 = t1; _t2 = t2; }
+        Point getIntersectionPoint() const { return _intersectionPoint; }
+        void setIntersectionPoint(const Point p) { _intersectionPoint = p; }
+        Vector3 getNormal() const { return _normal; } 
+        void setNormal(const Vector3 v) { _normal = v; }
         /* Used by std::sort() to sort the vector of intersections */
         bool operator<(const Intersection &rhs) const {
             return std::min(_t1, _t2) < std::min(rhs._t1, rhs._t2);
@@ -23,7 +36,7 @@ class Intersection {
     private:
         double _t1, _t2; // the t values of the intersection point(s)
         Vector3 _normal; // the geometric normal
-        Point _p1, _p2; // the intersection points
+        Point _intersectionPoint; // the intersection points
         int _surfaceid; // used to look up material
         bool _intersected; // boolean showing whether there is an intersection
 };
@@ -63,5 +76,19 @@ class Sphere : public Surface {
     private:
         Point _origin;
         float _radius;
+};
+
+class Plane : public Surface {
+    public:
+        Plane(Vector3 normal, double d) 
+            : _normal(normal), _d(d) {}
+        virtual Intersection intersect(Ray&);
+        virtual std::ostream& doprint(std::ostream &os) const {
+            os << _normal <<  " " << _d;
+            return os;
+        }
+    private:
+        Vector3 _normal; 
+        double _d;
 };
 #endif /* SURFACE_H */

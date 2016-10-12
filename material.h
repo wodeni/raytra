@@ -18,6 +18,8 @@ class Material {
         Material(const Vector3 &diff, const Vector3 &spec, const float &r, const Vector3 &refl)
     : _diff(diff), _spec(spec), _r(r), _refl(refl) {}
         Vector3 diff() const { return _diff; }
+        Vector3 spec() const { return _spec; }
+        float phong() const { return _r; }
     private:
         Vector3 _diff; // Diffused RGB value
         Vector3 _spec; // Specular RGB value

@@ -1,5 +1,6 @@
 #include "basemath.h"
 #include <cmath>
+#include <cassert>
 
 Vector3::Vector3() {
     _a = _b = _c = 0.0;
@@ -18,6 +19,7 @@ Vector3 Vector3::crossproduct(Vector3 &rhs) {
 }
 
 Vector3 Vector3::normalize() {
+    assert( _a != 0 || _b != 0 || _c != 0);
     double a2 = _a * _a;
     double b2 = _b * _b;
     double c2 = _c * _c;
@@ -28,6 +30,13 @@ Vector3 Vector3::normalize() {
 
 double Vector3::dotproduct(Vector3 &v) {
     return _a * v._a + _b * v._b + _c * v._c;
+}
+
+double Vector3::length() {
+    double a2 = _a * _a;
+    double b2 = _b * _b;
+    double c2 = _c * _c;
+    return sqrt(a2 + b2 + c2);
 }
 
 Vector3 Vector3::operator+(Vector3 rhs) {
@@ -67,4 +76,11 @@ std::ostream &operator<<(std::ostream& os, Point p) {
 Vector3 Point::operator-(Point p2) {
     Vector3 v(_a-p2._a, _b-p2._b, _c-p2._c);
     return v;
+}
+
+Point operator+(Point p, Vector3 v) {
+    return Point(p._a + v._a, p._b + v._b, p._c + v._c);
+}
+Point operator+(Vector3 v, Point p) {
+    return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }

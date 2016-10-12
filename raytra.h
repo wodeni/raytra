@@ -19,18 +19,14 @@ class Camera {
     public:
         Camera() {}
         void initCamera (Point&, Vector3&, float&, 
-                float&, float&, int&, int&, 
-                std::vector<Material *>&, std::vector<Surface *>&);
+                float&, float&, int&, int&);
         ~Camera();
         Ray construct_ray (int, int);
-        void render(const char filename[]);
+        void render(const char filename[],
+                std::vector< Surface *> &surfaces,
+                std::vector< Material *> &materials,
+                 std::vector< P_Light * > &lights);
         void writeRgba(const char filename[], Imf::Rgba *pixels);
-        void setmaterials(const std::vector<Material *> &m) {
-            _materials = m;
-        }
-        void setsurfaces(const std::vector<Surface *> &s) {
-            _surfaces = s;
-        }
     private:
         Point _eye;
 
@@ -42,9 +38,6 @@ class Camera {
 
         double _iw, _ih;
         int _pw, _ph;
-
-        std::vector<Material *> _materials;
-        std::vector<Surface *> _surfaces;
 };
 
 #endif /* RAYTRA_H */

@@ -10,6 +10,7 @@ class Vector3 {
         Vector3 (double, double, double);
         Vector3 crossproduct (Vector3 &);
         double dotproduct (Vector3 &);
+        double length();
         Vector3 normalize();
         Vector3 operator+(Vector3);
         friend Vector3 operator*(double, Vector3);
@@ -24,6 +25,8 @@ class Point {
         Point ();
         Point (double, double, double);
         Vector3 operator-(Point);
+        friend Point operator+(Point, Vector3);
+        friend Point operator+(Vector3, Point);
 };
 
 

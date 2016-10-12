@@ -32,7 +32,11 @@ class Camera;
 
 class Parser {
     public:
-        Camera& parse(const char *);
+void parse(const char *file,
+    std::vector< Surface * > &surfaces,
+    std::vector< Material * > &materials,
+    std::vector< P_Light * > &lights,
+    Camera &cam); 
 };
 
 

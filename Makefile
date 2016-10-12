@@ -5,7 +5,7 @@ CC = g++ # This is for the linking process to work correctly
 CXX = g++
 INCLUDES = -I. -isystem /usr/local/include/OpenEXR 
 CXXFLAGS = -g -Wall -std=c++11 ${INCLUDES}
-LDFLAGS =  -L/usr/local/lib
+LDFLAGS = -g  -L/usr/local/lib
 LDLIBS = -lIlmImf -lImath -lHalf
 
 
