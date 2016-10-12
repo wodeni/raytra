@@ -53,11 +53,12 @@ class Surface {
     }
 public:
     virtual Intersection intersect(Ray&) = 0;
+    Surface () { _materialid = 0; }
     virtual ~Surface() {}
     virtual std::ostream& doprint(std::ostream &os) const = 0;
     int materialid() const { return _materialid; }
     void setmaterialid(const int materialid) { _materialid = materialid; }
-private:
+protected:
     int _materialid; // the index of the material of this object
 };
 
