@@ -67,7 +67,6 @@ Point::Point(double a, double b, double c) {
     _a = a; _b = b; _c = c;
 }
 
-
 std::ostream &operator<<(std::ostream& os, Point p) {
     std::cout << "(" << p._a << ", " << p._b << ", " << p._c << ")";
     return os;
@@ -81,6 +80,7 @@ Vector3 Point::operator-(Point p2) {
 Point operator+(Point p, Vector3 v) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }
+
 Point operator+(Vector3 v, Point p) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }

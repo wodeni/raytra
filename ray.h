@@ -1,12 +1,13 @@
+/**
+ * @author: Wode Ni
+ * @version: 2016/10/12
+ */
+
 #ifndef RAY_H
 #define RAY_H
 
 #include "basemath.h"
 
-/**
- * @author: Wode "Nimo" Ni
- * @version: 2016/10/07
- */
 class Ray {
     public:
         Point _origin;

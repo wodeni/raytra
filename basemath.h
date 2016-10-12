@@ -1,3 +1,8 @@
+/**
+ * @author: Wode Ni
+ * @version: 2016/10/12
+ */
+
 #ifndef BASEMATH_H
 #define BASEMATH_H
 

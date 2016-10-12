@@ -1,12 +1,13 @@
+/**
+ * @author: Wode Ni
+ * @version: 2016/10/12
+ */
+
 #ifndef SURFACE_H 
 #define SURFACE_H 
 #include "basemath.h"
 #include "ray.h"
 
-/**
- * @author: Wode "Nimo" Ni
- * @version: 2016/10/07
- */
 class P_Light {
     public:
         P_Light(Point position, Vector3 color) 
@@ -17,6 +18,7 @@ class P_Light {
         Point _position;
         Vector3 _color;
 };
+
 class Intersection {
     public:
         int surfaceid() const { return _surfaceid; }

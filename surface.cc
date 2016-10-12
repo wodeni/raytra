@@ -46,6 +46,8 @@ Intersection Plane::intersect(Ray & r) {
     Vector3 origin = r._origin - Point(0,0,0);
     double upper_term = -1 * (_d + _normal.dotproduct(origin));
     double t = upper_term / dotproduct;
+
+    // It is a valid intersection only when t is positive
     if(t > 0) {
         result.setIntersected(true);
         result.setTs(t, t); // Although there is only one intersection, we

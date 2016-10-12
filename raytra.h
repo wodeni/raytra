@@ -1,7 +1,8 @@
 /**
- * @author: Wode "Nimo" Ni
- * @version: 2016/10/07
+ * @author: Wode Ni
+ * @version: 2016/10/12
  */
+
 #ifndef RAYTRA_H
 #define RAYTRA_H
 #include <vector>

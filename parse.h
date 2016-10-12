@@ -1,3 +1,8 @@
+/**
+ * @author: Wode Ni
+ * @version: 2016/10/12
+ */
+
 #ifndef PARSE_H
 #define PARSE_H
 
@@ -10,11 +15,6 @@
 
 using namespace std;
 
-
-/**
- * @author: Wode "Nimo" Ni
- * @version: 2016/10/07
- */
 inline istream &operator>>(istream &is, Point &f) {
     return is>>f._a>>f._b>>f._c;
 }

@@ -1,3 +1,8 @@
+/**
+ * @author: Wode Ni
+ * @version: 2016/10/12
+ */
+
 #ifndef MATERIAL_H
 #define MATERIAL_H
 #include "basemath.h"
