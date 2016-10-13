@@ -97,7 +97,7 @@ void Camera::render(const char filename[],
                     Vector3 spec = m->spec();
                     float phong = m->phong();
                     P_Light *light = lights[0]; // At this stage we have only one light
-                    double distance = (closest_in.getIntersectionPoint() - Point(0,0,0)).length(); 
+                    double distance = (closest_in.getIntersectionPoint() - light->getPosition()).length(); 
                     double d2 = 1. / (distance * distance);
                     Vector3 l = light->getPosition() - closest_in.getIntersectionPoint();
                     l = l.normalize();
