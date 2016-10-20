@@ -20,15 +20,27 @@ class Material {
             _refl = Vector3(0, 0, 0);
             _r = 0.0;
         }
-        Material(const Vector3 &diff, const Vector3 &spec, const float &r, const Vector3 &refl)
+
+        Material(const Vector3 &diff, const Vector3 &spec, const double &r, const Vector3 &refl)
     : _diff(diff), _spec(spec), _r(r), _refl(refl) {}
+
         Vector3 diff() const { return _diff; }
+
         Vector3 spec() const { return _spec; }
-        float phong() const { return _r; }
+
+        double phong() const { return _r; }
+
+        Vector3 computeShading (
+                    const Vector3 &L, // unit vector to the light
+                    const Vector3 &e, // unit vector to the viewer
+                    const Vector3 &N, // unit surface normal
+                    const Vector3 &L_e // color vector of the light
+                    ) const;
+
     private:
         Vector3 _diff; // Diffused RGB value
         Vector3 _spec; // Specular RGB value
-        float _r; // Roughness
+        double _r; // Roughness
         Vector3 _refl; // Ideal specular RGB calue
 };
 

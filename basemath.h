@@ -13,11 +13,12 @@ class Vector3 {
         double _a, _b, _c;
         Vector3 ();
         Vector3 (double, double, double);
-        Vector3 crossproduct (Vector3 &);
-        double dotproduct (Vector3 &);
-        double length();
-        Vector3 normalize();
-        Vector3 operator+(Vector3);
+        Vector3 crossproduct (const Vector3 &) const;
+        double dotproduct (const Vector3 &) const;
+        double length() const;
+        void normalize();
+        Vector3 operator+(const Vector3);
+        void operator+=(const Vector3);
         friend Vector3 operator*(double, Vector3);
         friend Vector3 operator*(Vector3, double);
         friend std::ostream &operator<<(std::ostream&, Vector3);

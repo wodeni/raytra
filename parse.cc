@@ -19,7 +19,7 @@ using namespace std;
 void Parser::parse(const char *file,
     std::vector< Surface * > &surfaces,
     std::vector< Material * > &materials,
-    std::vector< P_Light * > &lights,
+    std::vector< Light * > &lights,
     Camera &cam) {
     ifstream in(file);
     char buffer[1025];
@@ -43,7 +43,7 @@ void Parser::parse(const char *file,
             continue;
         } else if (cmd=="s") {
             // Sphere
-            Point pos; float r;
+            Point pos; double r;
             iss >> pos >> r;
             cursurface = new Sphere(pos, r);
 #if DEBUG
@@ -56,13 +56,13 @@ void Parser::parse(const char *file,
             iss >> a >> b >> c;
         } else if (cmd=="p") {
             // Plane
-            Vector3 n; float d;
+            Vector3 n; double d;
             iss >> n >> d;
             cursurface = new Plane(n, d);
         } else if (cmd=="c") {
             // Camera
             cameracount++;
-            Point pos; Vector3 dir; float d,iw,ih; int pw,ph;
+            Point pos; Vector3 dir; double d,iw,ih; int pw,ph;
             iss >> pos >> dir >> d >> iw >> ih >> pw >> ph;
             cam.initCamera(pos,dir,d,iw,ih,pw,ph);
 #if DEBUG
@@ -75,7 +75,7 @@ void Parser::parse(const char *file,
             if (cmd=="p") {
                 Point pos; Vector3 rgb;
                 iss >> pos >> rgb;
-                lights.push_back(new P_Light(pos, rgb));
+                lights.push_back(new PointLight(pos, rgb));
             } else if (cmd=="d") {
                 Vector3 dir,rgb;
                 iss >> dir >> rgb;
@@ -86,7 +86,7 @@ void Parser::parse(const char *file,
                 cout << "Parser error: invalid light at line " << line << endl;
             }
         } else if (cmd=="m") {
-            Vector3 diff,spec,refl; float r;
+            Vector3 diff,spec,refl; double r;
             iss >> diff >> spec >> r >> refl;
             Material *thismaterial = new Material(diff, spec, r, refl);
             materials.push_back(thismaterial);

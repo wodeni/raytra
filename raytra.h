@@ -11,6 +11,7 @@
 #include <ImfRgbaFile.h>
 #include "material.h"
 #include "basemath.h"
+#include "light.h"
 #include "ray.h"
 
 class Camera {
@@ -19,14 +20,14 @@ class Camera {
 
     public:
         Camera() {}
-        void initCamera (Point&, Vector3&, float&, 
-                float&, float&, int&, int&);
+        void initCamera (Point&, Vector3&, double&, 
+                double&, double&, int&, int&);
         ~Camera();
         Ray construct_ray (int, int);
         void render(const char filename[],
                 std::vector< Surface *> &surfaces,
                 std::vector< Material *> &materials,
-                 std::vector< P_Light * > &lights);
+                 std::vector< Light * > &lights);
         void writeRgba(const char filename[], Imf::Rgba *pixels);
     private:
         Point _eye;

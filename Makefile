@@ -11,15 +11,15 @@ LDLIBS = -lIlmImf -lImath -lHalf
 
 raytra: raytra.o parse.o surface.o material.o basemath.o 
 
-raytra.o: raytra.cc material.h basemath.h ray.h
+raytra.o: raytra.cc 
 
-parse.o: parse.cc parse.h basemath.h raytra.h
+parse.o: parse.cc 
 
-surface.o: surface.cc basemath.h ray.h
+surface.o: surface.cc 
 
-material.o: material.cc basemath.h
+material.o: material.cc 
 
-basemath.o: basemath.cc basemath.h
+basemath.o: basemath.cc
 
 .PHONY: clean
 clean: 

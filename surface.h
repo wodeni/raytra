@@ -8,17 +8,6 @@
 #include "basemath.h"
 #include "ray.h"
 
-class P_Light {
-    public:
-        P_Light(Point position, Vector3 color) 
-            : _position(position), _color(color) {}
-        Vector3 getColor() const { return _color; }
-        Point getPosition() const { return _position; }
-    private:
-        Point _position;
-        Vector3 _color;
-};
-
 class Intersection {
     public:
         int surfaceid() const { return _surfaceid; }
