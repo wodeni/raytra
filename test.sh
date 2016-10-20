@@ -1,14 +1,14 @@
 #! /bin/bash
 
 make
-./raytra ball.scn ball.exr
-./raytra ball2.scn ball2.exr
-./raytra grid.scn grid.exr
-./raytra grid2.scn grid2.exr
-./raytra color_ball.scn color_ball.exr
-# ./raytra spiral.scn spiral.exr
 ./raytra 3balls.scn 3balls.exr
-./raytra 3balls2.scn 3balls2.exr
-
+./raytra ball.scn ball.exr
+./raytra grid.scn grid.exr
+./raytra color_ball.scn color_ball.exr
 ./raytra complexgrid.scn complexgrid.exr
+./raytra basictrig.scn basictrig.exr
+./raytra spheregridrotated.scn spheregridrotated.exr
+./raytra plane.scn plane.exr
+# # ./raytra spiral.scn spiral.exr
+
 open *.exr

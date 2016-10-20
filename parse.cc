@@ -54,6 +54,7 @@ void Parser::parse(const char *file,
             // triangle
             Point a,b,c;
             iss >> a >> b >> c;
+            cursurface = new Triangle(a, b, c);
         } else if (cmd=="p") {
             // Plane
             Vector3 n; double d;
@@ -96,7 +97,7 @@ void Parser::parse(const char *file,
         }
 
         if(cursurface) {
-            cursurface->setmaterialid(materials.size()-1);
+            cursurface->setmaterialid(currentMaterial);
             surfaces.push_back(cursurface);
         }
     }

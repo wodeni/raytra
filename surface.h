@@ -83,4 +83,20 @@ class Plane : public Surface {
         Vector3 _normal; 
         double _d;
 };
+
+class Triangle : public Surface {
+public:
+	Triangle (Point p1, Point p2, Point p3)
+		: _p1(p1), _p2(p2), _p3(p3) {}
+	virtual Intersection intersect(Ray&);
+    virtual std::ostream& doprint(std::ostream &os) const {
+        os << _p1 <<  " " << _p2 << " " << _p3;
+        return os;
+    }
+private:
+	Point _p1, _p2, _p3;
+//	double _t0, _t1; // Bounding values for intersection computation
+//				   // Placed here because we could not change the
+//				   // function signature of intersection()
+};
 #endif /* SURFACE_H */
