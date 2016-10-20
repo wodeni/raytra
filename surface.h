@@ -14,18 +14,18 @@ class Intersection {
         void setsurfaceid(const int id) { _surfaceid = id; }
         bool Intersected() const { return _intersected; }
         void setIntersected(const bool& flag) { _intersected = flag; }
-        double getT() const { return std::min(_t1, _t2); }
-        void setTs(const double &t1, const double &t2) { _t1 = t1; _t2 = t2; }
+        double getT() const { return _t; }
+        void setT(const double &t) { _t = t; }
         Point getIntersectionPoint() const { return _intersectionPoint; }
         void setIntersectionPoint(const Point p) { _intersectionPoint = p; }
         Vector3 getNormal() const { return _normal; } 
         void setNormal(const Vector3 v) { _normal = v; }
         /* Used by std::sort() to sort the vector of intersections */
         bool operator<(const Intersection &rhs) const {
-            return std::min(_t1, _t2) < std::min(rhs._t1, rhs._t2);
+            return _t< rhs._t;
         }
     private:
-        double _t1, _t2; // the t values of the intersection point(s)
+        double _t; // the t value of the intersection point(s)
         Vector3 _normal; // the geometric normal
         Point _intersectionPoint; // the intersection points
         int _surfaceid; // used to look up material
