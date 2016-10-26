@@ -18,6 +18,8 @@ public:
 
 	virtual Vector3 getColor() const = 0;
 
+	virtual bool isAmbient() = 0;
+
 	Point getPosition() const { return _position; }
 
 protected:
@@ -35,7 +37,30 @@ public:
 		_color = color;
 	}
 
-	Vector3 getColor() const { return _color; }
+	virtual Vector3 getColor() const override { return _color; }
+
+	virtual bool isAmbient() override { return false; }
+
+
+private:
+
+	Vector3 _color;
+
+};
+
+class AmbientLight : public Light {
+public:
+
+	AmbientLight () {}
+
+	AmbientLight (const Vector3 &color) {
+		_color = color;
+	}
+
+	virtual Vector3 getColor() const override { return _color; }
+
+	virtual bool isAmbient() override { return true; }
+
 
 private:
 

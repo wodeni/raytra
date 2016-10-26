@@ -72,8 +72,10 @@ void Parser::parse(const char *file,
             cout << "Output size: " << pw << "x" << ph << endl;
 #endif
         } else if (cmd=="l") {
+        	// Light
             iss >> cmd;
             if (cmd=="p") {
+            	// Point Light
                 Point pos; Vector3 rgb;
                 iss >> pos >> rgb;
                 lights.push_back(new PointLight(pos, rgb));
@@ -81,8 +83,10 @@ void Parser::parse(const char *file,
                 Vector3 dir,rgb;
                 iss >> dir >> rgb;
             } else if (cmd=="a") {
+            	// Ambient Light
                 Vector3 rgb;
                 iss >> rgb;
+                lights.push_back(new AmbientLight(rgb));
             } else {
                 cout << "Parser error: invalid light at line " << line << endl;
             }

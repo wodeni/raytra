@@ -43,6 +43,10 @@ Vector3 Vector3::operator+(const Vector3 rhs) {
     return res;
 }
 
+Vector3 Vector3::pieceMultiply(const Vector3& rhs) const {
+	return Vector3 (_a * rhs._a, _b * rhs._b, _c * rhs._c);
+}
+
 std::ostream &operator<<(std::ostream& os, const Vector3 v) {
     os << "<" << v._a << ", " << v._b << ", " << v._c << ">";      
     return os;

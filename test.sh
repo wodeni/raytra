@@ -8,7 +8,6 @@ make
 ./raytra complexgrid.scn complexgrid.exr
 ./raytra basictrig.scn basictrig.exr
 ./raytra spheregridrotated.scn spheregridrotated.exr
-./raytra plane.scn plane.exr
 # # ./raytra spiral.scn spiral.exr
 
 open *.exr

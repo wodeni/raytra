@@ -31,4 +31,4 @@ all: clean raytra
 # hard-coded version
 .PHONY: hardcoded
 hardcoded:
-	${CXX} *.cc ${CXXFLAGS} ${LDFLAGS} ${LDLIBS} -o raytra
+	g++ -O3 *.cc -I. -I/usr/local/include/OpenEXR -L/usr/local/lib -lIlmImf -lImath -lHalf -Wall -std=c++11 -o raytra

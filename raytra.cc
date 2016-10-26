@@ -96,13 +96,19 @@ void Camera::render(const char filename[],
                 Surface* closestsurface = surfaces[closest_in.surfaceid()];
                 Material *m = materials[closestsurface->materialid()];
 
-//				Light *light = lights[0]; // At this stage we have only one light
                 Point intersection = closest_in.getIntersectionPoint();
 				Vector3 N = closest_in.getNormal();
 				Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
 
 				Vector3 rgb (0., 0., 0.);
                 for(Light *light : lights) {
+
+                	// If the light is ambient, only add the piecewise multiply of the ambient light's power
+                	// times the material's diffuse color (Kd).
+                	if(light->isAmbient()) {
+                		rgb += m->diff().pieceMultiply(light->getColor());
+                		continue;
+                	}
 
 					Vector3 L = light->getPosition() - intersection;
 					double d2 = L.dotproduct(L);
