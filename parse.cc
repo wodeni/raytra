@@ -27,6 +27,7 @@ void Parser::parse(const char *file,
 
     int currentMaterial = 0; // 0 is the default material
     int cameracount = 0;
+    int ambientcount = 0;
 
     for (int line=1; in.good(); line++) {
         in.getline(buffer,1024);
@@ -87,6 +88,7 @@ void Parser::parse(const char *file,
                 Vector3 rgb;
                 iss >> rgb;
                 lights.push_back(new AmbientLight(rgb));
+                ambientcount++;
             } else {
                 cout << "Parser error: invalid light at line " << line << endl;
             }
@@ -110,6 +112,8 @@ void Parser::parse(const char *file,
     assert(surfaces.size() != 0);
     // As mentioned in class #5, we allow only one camera in the scene
     assert(cameracount == 1);
+    // As specified in hw 1.3, only one ambient light is permitted
+    assert(ambientcount <= 1);
 #if DEBUG 
     cout << "Summary: " << surfaces.size() << " surfaces scanned " << materials.size() << " materials scanned" << endl;
 #endif

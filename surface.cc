@@ -118,13 +118,7 @@ Intersection Triangle::intersect(Ray& ray) {
 
 	res.setIntersected(true);
 	res.setT(t);
-	// Normal = (b - a) x (c - a)
-	Vector3 u = -1. * abc;
-	Vector3 v = -1. * def;
-	u.normalize(); v.normalize();
-	Vector3 N = u.crossproduct(v);
-	N.normalize();
-	res.setNormal(N);
+	res.setNormal(_normal);
     Point intersectionPoint = ray._origin + (t * ray._dir);
     res.setIntersectionPoint(intersectionPoint);
     return res;
