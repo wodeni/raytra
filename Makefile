@@ -31,3 +31,11 @@ all: clean raytra
 .PHONY: hardcoded
 hardcoded:
 	g++ -O3 *.cc -I. -I/usr/local/include/OpenEXR -L/usr/local/lib -lIlmImf -lImath -lHalf -Wall -std=c++11 -o raytra
+
+.PHONY: backup
+backup:
+	mkdir raytra_backup
+	cp *.cc *.h raytra_backup/
+	rm ../tarfiles/raytra_backup.tar
+	tar czvf ../tarfiles/raytra_backup.tar raytra_backup
+	rm -rf raytra_backup
