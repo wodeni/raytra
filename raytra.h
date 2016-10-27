@@ -30,6 +30,13 @@ class Camera {
                  std::vector< Light * > &lights);
         void writeRgba(const char filename[], Imf::Rgba *pixels);
         Point getPosition() const { return _eye; }
+        Vector3 L (Ray& r,
+        		int recursive_limit,
+        		double min_t, double max_t,
+        		int ray_type,
+        		std::vector< Surface *> &surfaces,
+                std::vector< Material *> &materials,
+				std::vector< Light *> &lights);
     private:
         Point _eye;
 

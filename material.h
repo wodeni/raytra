@@ -30,6 +30,10 @@ class Material {
 
         double phong() const { return _r; }
 
+        Vector3 refl() const { return _refl; }
+
+        bool reflective() const { return _refl._a != 0 or _refl._b != 0 or _refl._c != 0; }
+
         Vector3 computeShading (
                     const Vector3 &L, // unit vector to the light
                     const Vector3 &e, // unit vector to the viewer

@@ -19,6 +19,7 @@ class Vector3 {
         double length() const;
         void normalize();
         Vector3 operator+(const Vector3);
+        Vector3 operator-(const Vector3);
         void operator+=(const Vector3);
 
         friend Vector3 operator*(double, Vector3);

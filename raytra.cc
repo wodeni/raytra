@@ -3,8 +3,14 @@
 #include "surface.h"
 #include <iostream>
 #include <algorithm>
+#include <limits>
+
 using namespace Imf;
 using namespace std;
+
+#define SHADOW_RAY 0
+#define REGULAR_RAY 1
+#define STEP_NUM 0.0001
 
 void Camera::initCamera (Point &pos, Vector3 &dir,
         double &d, double &iw, double &ih,
@@ -57,6 +63,11 @@ void Camera::render(const char filename[],
 	int printProgress = _pw * _ph / 10;
 
     Array2D<Rgba> res;
+
+    // The yellow material used to debug is pushed to the tail of the vector
+    Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0., Vector3(0, 0, 0));
+    materials.push_back(yellow);
+
     res.resizeErase(_ph, _pw);
 
     for(int i = 0; i < _pw; ++i) { 
@@ -71,81 +82,121 @@ void Camera::render(const char filename[],
             
             // Construct ray
             Ray r = construct_ray(i,j); 
-            std::vector<Intersection> in_arr;
-
-            // Intersect the scene
-            for(std::size_t k = 0; k < surfaces.size(); ++k) {
-
-                Intersection tmp;
-                Surface* s = surfaces[k];
-                tmp = s->intersect(r);
-
-                if(tmp.Intersected()) {
-                    tmp.setsurfaceid(k);
-                    in_arr.push_back(tmp);
-                }
-            }  
-
-            if(in_arr.size() != 0) {
-
-                // From the result of intersecting, color the pixel
-                std::sort(in_arr.begin(), in_arr.end());
-
-                // Pick the closest object 
-                Intersection closest_in = in_arr[0];
-                Surface* closestsurface = surfaces[closest_in.surfaceid()];
-                Material *m = materials[closestsurface->materialid()];
-
-                Point intersection = closest_in.getIntersectionPoint();
-				Vector3 N = closest_in.getNormal();
-				Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
-
-				Vector3 rgb (0., 0., 0.);
-                for(Light *light : lights) {
-
-                	// If the light is ambient, only add the piecewise multiply of the ambient light's power
-                	// times the material's diffuse color (Kd).
-                	if(light->isAmbient()) {
-                		rgb += m->diff().pieceMultiply(light->getColor());
-                		continue;
-                	}
-
-					Vector3 L = light->getPosition() - intersection;
-					double d2 = L.dotproduct(L);
-					L.normalize();
-					Vector3 L_e = light->getColor();
-
-					// Generate shadow ray fron hit point to the light source
-					bool blocked = false;
-					Ray shadow_ray (intersection, L);
-					for(Surface* s : surfaces) {
-						Intersection temp = s->intersect(shadow_ray);
-						double t = temp.getT();
-						// TODO: to save a sqrt, squared both sides. Is this correct?
-						if(temp.Intersected() && temp.getNormal().dotproduct(L) < 0. && t * t < d2) {
-							blocked = true;
-							break;
-						}
-					}
-
-					// If the light source is not blocked by other objects,
-					// compute shading and scale by 1 over the distance to the light squared
-					if(!blocked)
-						rgb += m->computeShading(L, e, N, L_e) * (1.0 / d2);
-                }
-
-				px.r = rgb._a;
-				px.g = rgb._b;
-				px.b = rgb._c;
-                    
-            } else {
-                // If there is no intersection, set the current pixel to black
-                px.r = px.g = px.b = 0;
-            }
+            Vector3 rgb = L	(r,
+					 20,
+					 0.001,std::numeric_limits<double>::max(),
+					 REGULAR_RAY,
+					 surfaces, materials, lights);
+            px.r = rgb._a; px.g = rgb._b; px.b = rgb._c;
         }
     }
     this->writeRgba(filename, &res[0][0]);
     std::cout << "done!" << std::endl;
+}
+
+Vector3 Camera::L(Ray& r,
+		int recursive_limit,
+		double min_t, double max_t,
+		int ray_type,
+		std::vector< Surface *> &surfaces,
+        std::vector< Material *> &materials,
+		std::vector< Light *> &lights) {
+
+
+	if(recursive_limit == 0) return Vector3 (0, 0, 0);
+
+	if(ray_type == SHADOW_RAY) {
+		for(Surface* s : surfaces) {
+			Intersection temp = s->intersect(r);
+			double t = temp.getT();
+			if(temp.Intersected() && (t > STEP_NUM && t < max_t)) {
+				return Vector3 (0, 0, 0);
+			}
+		}
+		// TODO: any non-zero value is good?
+		return Vector3(1, 1, 1);
+	}
+
+	bool foundIntersection = false;
+	double best_t = std::numeric_limits<double>::max();
+	Intersection best_in, tmp;
+	Material *m = materials[0];
+	Vector3 N;
+	Point intersection;
+
+	// Intersect the scene
+	for(std::size_t k = 0; k < surfaces.size(); ++k) {
+		Surface* s = surfaces[k];
+		tmp = s->intersect(r);
+		double t = tmp.getT();
+		if(tmp.Intersected() && t > min_t && t <  best_t && t < max_t) {
+			foundIntersection = true;
+			tmp.setsurfaceid(k);
+			best_in = tmp;
+			best_t = t;
+			m = materials[s->materialid()];
+			intersection = tmp.getIntersectionPoint();
+			N = tmp.getNormal();
+		}
+	}
+
+	if(foundIntersection) {
+
+		Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
+
+		// If the camera is pointing to the back of the surface, color it yellow
+		if(e.dotproduct(N) < 0.) {
+			m = materials.back();
+			N = -1.0 * N;
+		}
+
+		Vector3 rgb (0., 0., 0.);
+		for(Light *light : lights) {
+
+			// If the light is ambient, only add the piecewise multiply of the ambient light's power
+			// times the material's diffuse color (Kd).
+			if(light->isAmbient()) {
+				rgb += m->diff().pieceMultiply(light->getColor());
+				continue;
+			}
+
+			Vector3 l = light->getPosition() - intersection;
+			double d_length = l.length();
+			double d2 = d_length * d_length;
+			l.normalize();
+			Vector3 L_e = light->getColor();
+
+			// Generate shadow ray fron hit point to the light source
+			Ray shadow_ray (intersection, l);
+			Vector3 l_rgb = L(shadow_ray,
+			  1,
+			  STEP_NUM, d_length,
+			  SHADOW_RAY,
+			  surfaces, materials, lights);
+			if(l_rgb.length() != 0.) {
+				rgb += m->computeShading(l, e, N, L_e) * (1.0 / d2);
+			}
+		}
+
+		if(!(m->reflective())) {
+			return rgb;
+		}
+		else {
+			double d_dot_N = r._dir.dotproduct(N);
+			Vector3 refl_dir = r._dir - (2 * d_dot_N) * N;
+			Ray refl_r (intersection, refl_dir);
+			Vector3 refl_rgb = 	L(refl_r,
+								  recursive_limit - 1,
+								  STEP_NUM, std::numeric_limits<double>::max(),
+								  REGULAR_RAY,
+								  surfaces, materials, lights);
+			return rgb + m->refl().pieceMultiply(refl_rgb);
+		}
+
+	} else {
+		// If there is no intersection, set the current pixel to black
+		return Vector3 (0, 0 ,0);
+	}
 }
 
 void Camera::writeRgba(const char filename[], Rgba *pixels) {

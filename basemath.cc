@@ -43,6 +43,11 @@ Vector3 Vector3::operator+(const Vector3 rhs) {
     return res;
 }
 
+Vector3 Vector3::operator-(const Vector3 rhs) {
+    Vector3 res(_a - rhs._a, _b - rhs._b, _c - rhs._c);
+    return res;
+}
+
 Vector3 Vector3::pieceMultiply(const Vector3& rhs) const {
 	return Vector3 (_a * rhs._a, _b * rhs._b, _c * rhs._c);
 }

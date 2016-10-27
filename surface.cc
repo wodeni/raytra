@@ -61,14 +61,14 @@ Intersection Plane::intersect(Ray & r) {
     double t = upper_term / dotproduct;
 
     // It is a valid intersection only when t is positive
-    if(t > 0) {
+    if(t <= 0) {
+        result.setIntersected(false);
+    } else {
         result.setIntersected(true);
         result.setT(t);
         Point intersectionPoint = r._origin + (t * r._dir);
         result.setIntersectionPoint(intersectionPoint);
         result.setNormal(_normal);
-    } else {
-        result.setIntersected(false);
     }
     return result;
 }
@@ -77,8 +77,8 @@ Intersection Triangle::intersect(Ray& ray) {
 
 	Intersection res;
 
-	double t0 = 0.0;
-	double t1 = 1000000.0;
+//	double t0 = 0.0;
+//	double t1 = 1000000.0;
 
 	// Using the notation on the textbook. E.g: Vector abc has componets <a, b, c>
 	Vector3 abc = _p1 - _p2; // a - b
@@ -101,7 +101,8 @@ Intersection Triangle::intersect(Ray& ray) {
 
 	M = a * ei_hf + b * gf_di + c * dh_eg; // |A|
 	t = -1.0 * (f * ak_jb + e * jc_al + d * bl_kc) / M; // Compute the value of t
-	if (t < t0 or t > t1) {
+//	if (t < t0 or t > t1) {
+	if(t <= 0.) {
 		res.setIntersected(false);
 		return res;
 	}
