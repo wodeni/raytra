@@ -22,7 +22,8 @@ basemath.o: basemath.cc basemath.h
   
 .PHONY: clean
 clean: 
-	rm -rf *.o core *.exr *.dSYM raytra
+	rm -rf *.o core *.dSYM raytra
+	mv *.exr outputs/
 	
 .PHONY: all
 all: clean raytra
