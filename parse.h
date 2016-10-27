@@ -38,8 +38,9 @@ void parse(const char *file,
     std::vector< Material * > &materials,
     std::vector< Light * > &lights,
     Camera &cam); 
-void Parser::read_wavefront_file(const char *file, std::vector<int> &tris,
-    		std::vector<float> &verts);
+//	void Parser::read_wavefront_file(const char *file, std::vector<int> &tris,
+//				std::vector<float> &verts);
+	void read_wavefront_file(const char *file, std::vector<Surface *> &triangles);
 };
 
 

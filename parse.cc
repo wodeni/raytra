@@ -102,6 +102,16 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 			Material *thismaterial = new Material(diff, spec, r, refl);
 			materials.push_back(thismaterial);
 			++currentMaterial;
+		} else if (cmd == "w") {
+			string filename;
+			iss >> filename;
+			vector <Surface *> triangles;
+			read_wavefront_file(filename.c_str(), triangles);
+			for(Surface *t : triangles) {
+				t->setmaterialid(currentMaterial);
+				surfaces.push_back(t);
+			}
+
 		} else {
 			cout << "Parser error: invalid command at line " << line << endl;
 		}
@@ -141,12 +151,12 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 // If you are using the supplied Parser class, you should probably make this
 // a method on it: Parser::read_wavefront_file().
 //
-void Parser::read_wavefront_file(const char *file, std::vector<int> &tris,
-		std::vector<float> &verts) {
+//void Parser::read_wavefront_file(const char *file, std::vector<int> &tris,
+//		std::vector<float> &verts) {
+void Parser::read_wavefront_file(const char *file, std::vector<Surface *> &triangles) {
 
-	// clear out the tris and verts vectors:
-	tris.clear();
-	verts.clear();
+	vector<int> tris;
+	vector<float> verts;
 
 	ifstream in(file);
 	char buffer[1025];
@@ -198,4 +208,11 @@ void Parser::read_wavefront_file(const char *file, std::vector<int> &tris,
 	in.close();
 
 	//   std::cout << "found this many tris, verts: " << tris.size () / 3.0 << "  " << verts.size () / 3.0 << std::endl;
+
+	for (int i = 0; i < tris.size() / 3.0; ++i) {
+		Point a (verts[3*tris[3*i]], verts[3*tris[3*i]+1], verts[3*tris[3*i]+2]);
+		Point b (verts[3*tris[3*i+1]], verts[3*tris[3*i+1]+1], verts[3*tris[3*i+1]+2]);
+		Point c (verts[3*tris[3*i+2]], verts[3*tris[3*i+2]+1], verts[3*tris[3*i+2]+2]);
+		triangles.push_back(new Triangle(a, b, c));
+	}
 }
