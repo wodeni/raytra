@@ -7,10 +7,6 @@
 #define MATERIAL_H
 #include "basemath.h"
 
-/**
- * @author: Wode "Nimo" Ni
- * @version: 2016/10/07
- */
 class Material {
     friend std::ostream &operator<<(const std::ostream &, const Material);
     public:

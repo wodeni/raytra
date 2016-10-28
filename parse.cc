@@ -151,8 +151,7 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 // If you are using the supplied Parser class, you should probably make this
 // a method on it: Parser::read_wavefront_file().
 //
-//void Parser::read_wavefront_file(const char *file, std::vector<int> &tris,
-//		std::vector<float> &verts) {
+
 void Parser::read_wavefront_file(const char *file, std::vector<Surface *> &triangles) {
 
 	vector<int> tris;

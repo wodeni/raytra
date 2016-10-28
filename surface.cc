@@ -1,11 +1,12 @@
-#include "surface.h"
-#include <iostream>
-#include <cmath>
-
 /**
  * @author: Wode "Nimo" Ni
  * @version: 2016/10/07
  */
+#include "surface.h"
+#include <iostream>
+#include <cmath>
+
+
 Intersection Sphere::intersect(Ray &r) {
     Intersection result;
     double disc; // the discriminant of the solution
