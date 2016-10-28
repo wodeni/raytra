@@ -10,7 +10,7 @@ else
 INCLUDEDIR = /usr/include/OpenEXR
 LIBDIR = /usr/lib
 endif
-INCLUDES = -I. -isystem /usr/local/include/OpenEXR 
+INCLUDES = -I. -isystem ${INCLUDEDIR}
 CXXFLAGS = -g -Wall -std=c++11 ${INCLUDES}
 LDFLAGS = -g  -L${LIBDIR}
 LDLIBS = -lIlmImf -lImath -lHalf
