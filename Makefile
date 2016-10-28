@@ -31,7 +31,7 @@ basemath.o: basemath.cc basemath.h
 .PHONY: clean
 clean: 
 	rm -rf *.o core *.dSYM raytra
-	if [ -f *.exr ]; then mv *.exr outputs/; fi
+	mv *.exr outputs/
 
 .PHONY: all
 all: clean raytra
