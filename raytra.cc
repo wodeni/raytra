@@ -10,6 +10,7 @@ using namespace std;
 
 #define SHADOW_RAY 0
 #define REGULAR_RAY 1
+#define REFLECT_RAY 2
 #define STEP_NUM 0.0001
 
 void Camera::initCamera (Point &pos, Vector3 &dir,
@@ -155,7 +156,7 @@ Vector3 Camera::L(Ray& r,
 
 			// If the light is ambient, only add the piecewise multiply of the ambient light's power
 			// times the material's diffuse color (Kd).
-			if(light->isAmbient()) {
+			if(light->isAmbient() && ray_type == REGULAR_RAY) {
 				rgb += m->diff().pieceMultiply(light->getColor());
 				continue;
 			}
@@ -188,7 +189,7 @@ Vector3 Camera::L(Ray& r,
 			Vector3 refl_rgb = 	L(refl_r,
 								  recursive_limit - 1,
 								  STEP_NUM, std::numeric_limits<double>::max(),
-								  REGULAR_RAY,
+								  REFLECT_RAY,
 								  surfaces, materials, lights);
 			return rgb + m->refl().pieceMultiply(refl_rgb);
 		}
