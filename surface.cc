@@ -7,8 +7,7 @@
 #include <cmath>
 
 
-Intersection Sphere::intersect(Ray &r) {
-    Intersection result;
+bool Sphere::intersect(const Ray &r, Intersection &in) const {
     double disc; // the discriminant of the solution
     Vector3 o_diff = r._origin - _origin; // p0 - O
     double d_sq = r._dir.dotproduct(r._dir); // d * d
@@ -16,10 +15,8 @@ Intersection Sphere::intersect(Ray &r) {
     double b = o_diff.dotproduct(o_diff) - (_radius * _radius); // (p0 - O)(p0 - O) - r^2 
     disc = a * a - d_sq * b;
 
-    if(disc < 0.) {
-        result.setIntersected(false);
-        return result;
-    }
+    if(disc < 0.)
+    	return false;
 
     double desc_sqrt = sqrt(disc);
     double t = (-1.0 * a + desc_sqrt) / d_sq;
@@ -30,30 +27,20 @@ Intersection Sphere::intersect(Ray &r) {
     		t = temp_t;
     }
 
-    if(t <= 0) {
-    	result.setIntersected(false);
-    	return result;
-    }
-    result.setIntersected(true);
-    // Store the parametized t values
-    result.setT(t);
-    // Compute the closest intersection point using the smaller t
-    Point intersectionPoint = r._origin + (t * r._dir);
-    result.setIntersectionPoint(intersectionPoint);
-    // Set the surface normal, which is (intersection - origin) / radius
-    result.setNormal( (1 / _radius) * (intersectionPoint - _origin) );
-    return result;
+    if(t <= 0)
+    	return false;
+    Point pt = r._origin + (t * r._dir);
+    Vector3 n = (1 / _radius) * (pt - _origin);
+    in.set(t, pt, n);
+    return true;
 }
 
-Intersection Plane::intersect(Ray & r) {
-    Intersection result;
+bool Plane::intersect(const Ray &r, Intersection &in) const {
     // vec_d dot N 
     double dotproduct = r._dir.dotproduct(_normal);
     // Not intersection if the plane is parallel with the ray
-    if(dotproduct == 0) {
-        result.setIntersected(false);
-        return result;
-    }
+    if(dotproduct == 0)
+    	return false;
     // - (N dot P0 - d)
     // Doing origin - (0,0,0) because we need to convert from a
     // point to a vector
@@ -63,18 +50,15 @@ Intersection Plane::intersect(Ray & r) {
 
     // It is a valid intersection only when t is positive
     if(t <= 0) {
-        result.setIntersected(false);
+    	return false;
     } else {
-        result.setIntersected(true);
-        result.setT(t);
-        Point intersectionPoint = r._origin + (t * r._dir);
-        result.setIntersectionPoint(intersectionPoint);
-        result.setNormal(_normal);
+        Point pt = r._origin + (t * r._dir);
+        in.set(t, pt, _normal);
+        return true;
     }
-    return result;
 }
 
-Intersection Triangle::intersect(Ray& ray) {
+bool Triangle::intersect(const Ray& ray, Intersection &in) const {
 
 	Intersection res;
 
@@ -101,27 +85,23 @@ Intersection Triangle::intersect(Ray& ray) {
 	double dh_eg = d * h - e * g; // dh - eg
 
 	M = a * ei_hf + b * gf_di + c * dh_eg; // |A|
+
+	// Adopted from solution code
+	if(M == 0)
+		return false;
+
 	t = -1.0 * (f * ak_jb + e * jc_al + d * bl_kc) / M; // Compute the value of t
 //	if (t < t0 or t > t1) {
-	if(t <= 0.) {
-		res.setIntersected(false);
-		return res;
-	}
+	if(t <= 0.)
+		return false;
 	gamma = (i * ak_jb + h * jc_al + g * bl_kc) / M; // Compute the value of gamma
-	if(gamma < 0 or gamma > 1) {
-		res.setIntersected(false);
-		return res;
-	}
+	if(gamma < 0 or gamma > 1)
+		return false;
 	beta = (j * ei_hf + k * gf_di + l * dh_eg) / M; // Compute the value of beta
-	if(beta < 0 or beta > (1 - gamma)) {
-		res.setIntersected(false);
-		return res;
-	}
+	if(beta < 0 or beta > (1 - gamma))
+		return false;
 
-	res.setIntersected(true);
-	res.setT(t);
-	res.setNormal(_normal);
-    Point intersectionPoint = ray._origin + (t * ray._dir);
-    res.setIntersectionPoint(intersectionPoint);
-    return res;
+	Point pt = ray._origin + (t * ray._dir);
+	in.set(t, pt, _normal);
+	return true;
 }

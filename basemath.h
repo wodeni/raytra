@@ -18,12 +18,12 @@ class Vector3 {
         Vector3 pieceMultiply(const Vector3 &) const;
         double length() const;
         void normalize();
-        Vector3 operator+(const Vector3);
-        Vector3 operator-(const Vector3);
-        void operator+=(const Vector3);
+        Vector3 operator+(const Vector3&) const;
+        Vector3 operator-(const Vector3&) const;
+        void operator+=(const Vector3&);
 
-        friend Vector3 operator*(double, Vector3);
-        friend Vector3 operator*(Vector3, double);
+        friend Vector3 operator*(double, const Vector3&);
+        friend Vector3 operator*(const Vector3&, double);
 
         friend std::ostream &operator<<(std::ostream&, Vector3);
 };
@@ -34,9 +34,9 @@ class Point {
         double _a, _b, _c;
         Point ();
         Point (double, double, double);
-        Vector3 operator-(Point);
-        friend Point operator+(Point, Vector3);
-        friend Point operator+(Vector3, Point);
+        Vector3 operator-(const Point&) const;
+        friend Point operator+(const Point&, const Vector3&);
+        friend Point operator+(const Vector3&, const Point&);
 };
 
 

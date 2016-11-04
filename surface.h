@@ -5,12 +5,23 @@
 
 #ifndef SURFACE_H 
 #define SURFACE_H 
+#include <limits>
 #include "basemath.h"
 #include "ray.h"
 
 class Intersection {
     public:
-        int surfaceid() const { return _surfaceid; }
+		Intersection() {
+			_intersected = false;
+			_t = std::numeric_limits<double>::max();
+			_intersectionPoint = Point();
+			_surfaceid = -1;
+		}
+		void set(const double t, const Point &pt, const Vector3 &normal) {
+			_t = t;  _normal = normal; _intersected = true;
+			_intersectionPoint = pt;
+		}
+		int surfaceid() const { return _surfaceid; }
         void setsurfaceid(const int id) { _surfaceid = id; }
         bool Intersected() const { return _intersected; }
         void setIntersected(const bool& flag) { _intersected = flag; }
@@ -41,7 +52,7 @@ class Surface {
         return os;
     }
 public:
-    virtual Intersection intersect(Ray&) = 0;
+    virtual bool intersect(const Ray&, Intersection&) const = 0;
     Surface () { _materialid = 0; }
     virtual ~Surface() {}
     virtual std::ostream& doprint(std::ostream &os) const = 0;
@@ -60,8 +71,8 @@ class Sphere : public Surface {
         {}
         
         ~Sphere() {}
-        virtual Intersection intersect(Ray&);
-        virtual std::ostream& doprint(std::ostream &os) const {
+        virtual bool intersect(const Ray&, Intersection&) const override;
+        virtual std::ostream& doprint(std::ostream &os) const override {
             os << _origin <<  " " << _radius;
             return os;
         }
@@ -74,8 +85,8 @@ class Plane : public Surface {
     public:
         Plane(Vector3 normal, double d) 
             : _normal(normal), _d(d) {}
-        virtual Intersection intersect(Ray&);
-        virtual std::ostream& doprint(std::ostream &os) const {
+        virtual bool intersect(const Ray&, Intersection&) const override;
+        virtual std::ostream& doprint(std::ostream &os) const override {
             os << _normal <<  " " << _d;
             return os;
         }
@@ -91,8 +102,8 @@ public:
 		_normal = (p2 - p1).crossproduct(p3 - p1);
 		_normal.normalize();
 	}
-	virtual Intersection intersect(Ray&);
-    virtual std::ostream& doprint(std::ostream &os) const {
+    virtual bool intersect(const Ray&, Intersection&) const override;
+    virtual std::ostream& doprint(std::ostream &os) const override {
         os << _p1 <<  " " << _p2 << " " << _p3;
         return os;
     }
