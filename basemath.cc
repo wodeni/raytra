@@ -38,12 +38,12 @@ double Vector3::length() const {
     return sqrt(a2 + b2 + c2);
 }
 
-Vector3 Vector3::operator+(const Vector3 rhs) {
+Vector3 Vector3::operator+(const Vector3 &rhs) const {
     Vector3 res(_a + rhs._a, _b + rhs._b, _c + rhs._c);
     return res;
 }
 
-Vector3 Vector3::operator-(const Vector3 rhs) {
+Vector3 Vector3::operator-(const Vector3 &rhs) const {
     Vector3 res(_a - rhs._a, _b - rhs._b, _c - rhs._c);
     return res;
 }
@@ -57,17 +57,17 @@ std::ostream &operator<<(std::ostream& os, const Vector3 v) {
     return os;
 }
 
-Vector3 operator*(double i, Vector3 v) {
+Vector3 operator*(double i, const Vector3 &v) {
     Vector3 w(i*v._a, i*v._b, i*v._c);
     return w;
 }
 
-Vector3 operator*(Vector3 v, double i) {
+Vector3 operator*(const Vector3 &v, double i) {
     Vector3 w(i*v._a, i*v._b, i*v._c);
     return w;
 }
 
-void Vector3::operator+=(const Vector3 rhs) {
+void Vector3::operator+=(const Vector3 &rhs) {
     _a += rhs._a;
     _b += rhs._b;
     _c += rhs._c;
@@ -86,15 +86,15 @@ std::ostream &operator<<(std::ostream& os, Point p) {
     return os;
 }
 
-Vector3 Point::operator-(Point p2) {
+Vector3 Point::operator-(const Point &p2) const {
     Vector3 v(_a-p2._a, _b-p2._b, _c-p2._c);
     return v;
 }
 
-Point operator+(Point p, Vector3 v) {
+Point operator+(const Point &p, const Vector3 &v) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }
 
-Point operator+(Vector3 v, Point p) {
+Point operator+(const Vector3 &v, const Point &p) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }

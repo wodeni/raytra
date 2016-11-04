@@ -108,9 +108,8 @@ Vector3 Camera::L(Ray& r,
 
 	if(ray_type == SHADOW_RAY) {
 		for(Surface* s : surfaces) {
-			Intersection temp = s->intersect(r);
-			double t = temp.getT();
-			if(temp.Intersected() && (t > STEP_NUM && t < max_t)) {
+			Intersection in;
+			if(s->intersect(r, in) && (in.getT() > STEP_NUM && in.getT() < max_t)) {
 				return Vector3 (0, 0, 0);
 			}
 		}
@@ -118,30 +117,41 @@ Vector3 Camera::L(Ray& r,
 		return Vector3(1, 1, 1);
 	}
 
-	bool foundIntersection = false;
 	double best_t = std::numeric_limits<double>::max();
 	Intersection best_in, tmp;
-	Material *m = materials[0];
-	Vector3 N;
-	Point intersection;
+	int m_id;
 
 	// Intersect the scene
-	for(std::size_t k = 0; k < surfaces.size(); ++k) {
-		Surface* s = surfaces[k];
-		tmp = s->intersect(r);
-		double t = tmp.getT();
-		if(tmp.Intersected() && t > min_t && t <  best_t && t < max_t) {
-			foundIntersection = true;
-			tmp.setsurfaceid(k);
-			best_in = tmp;
-			best_t = t;
-			m = materials[s->materialid()];
-			intersection = tmp.getIntersectionPoint();
-			N = tmp.getNormal();
+	for(Surface *obj : surfaces) {
+		if(obj->intersect(r, tmp)) {
+			double t = tmp.getT();
+			if(t > min_t && t < best_t && t < max_t) {
+				best_t = t;
+				best_in =tmp;
+				m_id = obj->materialid();
+			}
 		}
 	}
+//	for(std::size_t k = 0; k < surfaces.size(); ++k) {
+//		Surface* s = surfaces[k];
+//		tmp = s->intersect(r);
+//		double t = tmp.getT();
+//		if(tmp.Intersected() && t > min_t && t <  best_t && t < max_t) {
+//			foundIntersection = true;
+//			tmp.setsurfaceid(k);
+//			best_in = tmp;
+//			best_t = t;
+//			m = materials[s->materialid()];
+//			intersection = tmp.getIntersectionPoint();
+//			N = tmp.getNormal();
+//		}
+//	}
 
-	if(foundIntersection) {
+	if(best_in.Intersected()) {
+
+		Material *m = materials[m_id];
+		Vector3 N = best_in.getNormal();
+		Point intersection = best_in.getIntersectionPoint();
 
 		Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
 
