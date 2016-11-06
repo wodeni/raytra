@@ -69,17 +69,12 @@ bool Triangle::intersect(const Ray& ray, Intersection &in) const {
 	Vector3 abc = _p1 - _p2; // a - b
 	Vector3 def = _p1 - _p3; // a - c
 	Vector3 ghi = ray._dir; // d
-	Vector3 jkl = _p1 - ray._origin; // a - e
 	double M, t, beta, gamma;
 	// Symbolizing the entries in matrix A
 	double a = abc._a, b = abc._b, c = abc._c;
 	double d = def._a, e = def._b, f = def._c;
 	double g = ghi._a, h = ghi._b, i = ghi._c;
-	double j = jkl._a, k = jkl._b, l = jkl._c;
 
-	double ak_jb = a * k - j * b; // ak - jb
-	double jc_al = j * c - a * l; // jc - al
-	double bl_kc = b * l - k * c; // bl - kc
 	double ei_hf = e * i - h * f; // ei - hf
 	double gf_di = g * f - d * i; // gf - di
 	double dh_eg = d * h - e * g; // dh - eg
@@ -90,8 +85,15 @@ bool Triangle::intersect(const Ray& ray, Intersection &in) const {
 	if(M == 0)
 		return false;
 
+	Vector3 jkl = _p1 - ray._origin; // a - e
+
+	double j = jkl._a, k = jkl._b, l = jkl._c;
+
+	double ak_jb = a * k - j * b; // ak - jb
+	double jc_al = j * c - a * l; // jc - al
+	double bl_kc = b * l - k * c; // bl - kc
+
 	t = -1.0 * (f * ak_jb + e * jc_al + d * bl_kc) / M; // Compute the value of t
-//	if (t < t0 or t > t1) {
 	if(t <= 0.)
 		return false;
 	gamma = (i * ak_jb + h * jc_al + g * bl_kc) / M; // Compute the value of gamma

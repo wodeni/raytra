@@ -132,20 +132,6 @@ Vector3 Camera::L(Ray& r,
 			}
 		}
 	}
-//	for(std::size_t k = 0; k < surfaces.size(); ++k) {
-//		Surface* s = surfaces[k];
-//		tmp = s->intersect(r);
-//		double t = tmp.getT();
-//		if(tmp.Intersected() && t > min_t && t <  best_t && t < max_t) {
-//			foundIntersection = true;
-//			tmp.setsurfaceid(k);
-//			best_in = tmp;
-//			best_t = t;
-//			m = materials[s->materialid()];
-//			intersection = tmp.getIntersectionPoint();
-//			N = tmp.getNormal();
-//		}
-//	}
 
 	if(best_in.Intersected()) {
 
@@ -219,7 +205,7 @@ void Camera::writeRgba(const char filename[], Rgba *pixels) {
 
 int main(int argc, char **argv) {
     if (argc != 3) {
-        cerr << "useage: raytra scenefilename outputfilename" << endl;
+        cerr << "usage: raytra scenefilename outputfilename" << endl;
         return -1;
     }
 
