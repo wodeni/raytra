@@ -74,7 +74,6 @@ double Vector3::operator [](int i) const {
 	case 2: return _c;
 	default: return 0; // TODO: what should be the default action here?
 	}
-
 }
 
 void Vector3::operator+=(const Vector3 &rhs) {
@@ -101,6 +100,15 @@ Vector3 Point::operator-(const Point &p2) const {
     return v;
 }
 
+double Point::operator [](int i) const {
+	switch(i) {
+	case 0: return _a;
+	case 1: return _b;
+	case 2: return _c;
+	default: return 0; // TODO: what should be the default action here?
+	}
+}
+
 Point operator+(const Point &p, const Vector3 &v) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }
@@ -108,3 +116,5 @@ Point operator+(const Point &p, const Vector3 &v) {
 Point operator+(const Vector3 &v, const Point &p) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }
+
+

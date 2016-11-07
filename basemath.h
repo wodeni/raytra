@@ -36,6 +36,8 @@ class Point {
         Point ();
         Point (double, double, double);
         Vector3 operator-(const Point&) const;
+        double operator[](int) const;
+
         friend Point operator+(const Point&, const Vector3&);
         friend Point operator+(const Vector3&, const Point&);
 };
