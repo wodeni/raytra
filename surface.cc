@@ -6,7 +6,6 @@
 #include <iostream>
 #include <cmath>
 
-
 bool Sphere::intersect(const Ray &r, Intersection &in) const {
     double disc; // the discriminant of the solution
     Vector3 o_diff = r._origin - _origin; // p0 - O

@@ -57,7 +57,8 @@ Ray Camera::construct_ray (int i, int j) {
 void Camera::render(const char filename[],
                 std::vector< Surface *> &surfaces,
                 std::vector< Material *> &materials,
-                std::vector< Light * > &lights) {
+                std::vector< Light * > &lights,
+				int mode) {
 
 	std::cout << "Rendering";
 
@@ -204,9 +205,21 @@ void Camera::writeRgba(const char filename[], Rgba *pixels) {
 
 
 int main(int argc, char **argv) {
-    if (argc != 3) {
+	/**
+	 * If 2 args, proceed with BVH tree
+	 * If 3 args and 3rd arg == 0, do not use BVH
+	 * If 3 args and 3rd arg == 1, render the bboxes
+	 */
+	int mode;
+    if (argc < 3) {
         cerr << "usage: raytra scenefilename outputfilename" << endl;
         return -1;
+    } else if (argc == 4) {
+    	if() {
+
+    	} else{
+
+    	}
     }
 
     Camera cam;
@@ -228,7 +241,7 @@ int main(int argc, char **argv) {
 		lights.push_back(defaultLight);
 		std::cout << "No lights! Using default light instead" << std::endl;
     }
-	cam.render(argv[2], surfaces, materials, lights);
+	cam.render(argv[2], surfaces, materials, lights, mode);
 
     // Dealloctating the memory
     for(Material* m : materials) {

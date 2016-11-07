@@ -27,7 +27,8 @@ class Camera {
         void render(const char filename[],
                 std::vector< Surface *> &surfaces,
                 std::vector< Material *> &materials,
-                 std::vector< Light * > &lights);
+                 std::vector< Light * > &lights,
+				 int mode);
         void writeRgba(const char filename[], Imf::Rgba *pixels);
         Point getPosition() const { return _eye; }
         Vector3 L (Ray& r,
