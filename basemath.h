@@ -21,6 +21,7 @@ class Vector3 {
         Vector3 operator+(const Vector3&) const;
         Vector3 operator-(const Vector3&) const;
         void operator+=(const Vector3&);
+        double operator[](int) const;
 
         friend Vector3 operator*(double, const Vector3&);
         friend Vector3 operator*(const Vector3&, double);

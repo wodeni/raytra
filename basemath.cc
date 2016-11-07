@@ -67,6 +67,16 @@ Vector3 operator*(const Vector3 &v, double i) {
     return w;
 }
 
+double Vector3::operator [](int i) const {
+	switch(i) {
+	case 0: return _a;
+	case 1: return _b;
+	case 2: return _c;
+	default: return 0; // TODO: what should be the default action here?
+	}
+
+}
+
 void Vector3::operator+=(const Vector3 &rhs) {
     _a += rhs._a;
     _b += rhs._b;
