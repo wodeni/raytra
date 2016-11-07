@@ -50,13 +50,16 @@ class Intersection {
  */
 class BBox {
 public:
+	BBox () {}
 	BBox(const Point min, const Point max, const Point center)
 	{ _min = min; _max = max; _center = center; }
 	void addEpsilon() {
-		double e = 1.0e-6;
+		double e = 1.0e-4;
 		_min = Point (_min._a - e, _min._b - e, _min._c - e);
 		_max = Point (_max._a + e, _max._b + e, _max._c + e);
 	}
+	Point getMin() const { return _min; }
+	Point getMax() const { return _max; }
 private:
 	Point _min, _max, _center;
 //	int _surfaceid;
@@ -78,6 +81,7 @@ public:
     virtual std::ostream& doprint(std::ostream &os) const = 0;
     int materialid() const { return _materialid; }
     void setmaterialid(const int materialid) { _materialid = materialid; }
+    virtual bool checkbox(const Ray&, Intersection&);
 protected:
     BBox _bbox;
     int _materialid; // the index of the material of this object
@@ -114,6 +118,7 @@ class Plane : public Surface {
             os << _normal <<  " " << _d;
             return os;
         }
+        virtual bool checkbox(const Ray& r, Intersection& in) override { return true; }
     private:
         Vector3 _normal; 
         double _d;

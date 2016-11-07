@@ -5,6 +5,8 @@
 #include "surface.h"
 #include <iostream>
 #include <cmath>
+#include <limits>
+
 
 bool Sphere::intersect(const Ray &r, Intersection &in) const {
     double disc; // the discriminant of the solution
@@ -59,8 +61,6 @@ bool Plane::intersect(const Ray &r, Intersection &in) const {
 
 bool Triangle::intersect(const Ray& ray, Intersection &in) const {
 
-	Intersection res;
-
 //	double t0 = 0.0;
 //	double t1 = 1000000.0;
 
@@ -104,5 +104,67 @@ bool Triangle::intersect(const Ray& ray, Intersection &in) const {
 
 	Point pt = ray._origin + (t * ray._dir);
 	in.set(t, pt, _normal);
+	return true;
+}
+
+bool Surface::checkbox(const Ray& r, Intersection& in) {
+	Point e = r._origin, min = _bbox.getMin(), max = _bbox.getMax();
+	Vector3 d = r._dir;
+	double tmax[3], tmin[3];
+	double best_tmax = std::numeric_limits<double>::max();
+	double best_tmin = 0.;
+//	if(a >= 0) {
+//		txmin = a * (min._a - e._a);
+//		txmax = a * (max._a - e._a);
+//	} else {
+//		txmin = a * (max._a - e._a);
+//		txmax = a * (min._a - e._a);
+//	}
+//	if(b >= 0) {
+//		tymin = b * (min._b - e._b);
+//		tymax = b * (max._b - e._b);
+//	} else {
+//		tymin = b * (max._b - e._b);
+//		tymax = b * (min._b - e._b);
+//	}
+//	if(c >= 0) {
+//		tzmin = c * (min._c - e._c);
+//		tzmax = c * (max._c - e._c);
+//	} else {
+//		tzmin = c * (max._c - e._c);
+//		tzmax = c * (min._c - e._c);
+//	}
+
+	// Looping over 3 dimensions
+	for(int i = 0; i < 3; ++i) {
+		double a = 1 / d[i];
+		if(a >= 0) {
+			tmin[i] = a * (min[i] - e[i]);
+			tmax[i] = a * (max[i] - e[i]);
+		} else {
+			tmax[i] = a * (min[i] - e[i]);
+			tmin[i] = a * (max[i] - e[i]);
+		}
+		if(tmin[i] > best_tmin)
+			best_tmin = tmin[i];
+		if(tmax[i] < best_tmax)
+			best_tmax = tmax[i];
+		if(best_tmin > best_tmax)
+			return false;
+	}
+
+	Vector3 normal;
+	// See which surface we intersected and set the normal in accordance
+	// TODO: how can we tell which side we hitted?
+	// TODO: what if the object is behind the camera?
+	if(best_tmin == tmin[0]) // x plane
+		normal = (d[0] > 0) ? Vector3(-1, 0 ,0) : Vector3(1, 0, 0);
+	else if(best_tmin == tmin[0]) // y plane
+		normal = (d[1] > 0) ? Vector3(0, -1 ,0) : Vector3(0, 1, 0);
+	else // z plane
+		normal = (d[2] > 0) ? Vector3(0, 0 ,-1) : Vector3(0, 0, 1);
+
+	Point pt = e + best_tmin * d;
+	in.set(best_tmin, pt, normal);
 	return true;
 }
