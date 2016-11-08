@@ -112,9 +112,14 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 	if (ray_type == SHADOW_RAY) {
 		for (Surface* s : surfaces) {
 			Intersection in;
-			if (s->intersect(r, in)
+			if(s->checkbox(r, in)
 					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
-				return Vector3(0, 0, 0);
+				if(mode == BBOX_ONLY_MODE) {
+					return Vector3(0, 0, 0);
+				} else if (s->intersect(r, in)
+						&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
+					return Vector3(0, 0, 0);
+				}
 			}
 		}
 		// TODO: any non-zero value is good?

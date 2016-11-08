@@ -155,11 +155,10 @@ bool Surface::checkbox(const Ray& r, Intersection& in) {
 
 	Vector3 normal;
 	// See which surface we intersected and set the normal in accordance
-	// TODO: how can we tell which side we hitted?
 	// TODO: what if the object is behind the camera?
 	if(best_tmin == tmin[0]) // x plane
 		normal = (d[0] > 0) ? Vector3(-1, 0 ,0) : Vector3(1, 0, 0);
-	else if(best_tmin == tmin[0]) // y plane
+	else if(best_tmin == tmin[1]) // y plane
 		normal = (d[1] > 0) ? Vector3(0, -1 ,0) : Vector3(0, 1, 0);
 	else // z plane
 		normal = (d[2] > 0) ? Vector3(0, 0 ,-1) : Vector3(0, 0, 1);
