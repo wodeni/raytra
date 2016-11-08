@@ -81,7 +81,7 @@ public:
     virtual std::ostream& doprint(std::ostream &os) const = 0;
     int materialid() const { return _materialid; }
     void setmaterialid(const int materialid) { _materialid = materialid; }
-    virtual bool checkbox(const Ray&, Intersection&);
+    virtual bool checkbox(const Ray&, Intersection&) const;
 protected:
     BBox _bbox;
     int _materialid; // the index of the material of this object
@@ -118,7 +118,6 @@ class Plane : public Surface {
             os << _normal <<  " " << _d;
             return os;
         }
-        virtual bool checkbox(const Ray& r, Intersection& in) override { return true; }
     private:
         Vector3 _normal; 
         double _d;

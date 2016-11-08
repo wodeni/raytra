@@ -1,6 +1,7 @@
 #include "parse.h"
 #include "raytra.h"
 #include "surface.h"
+#include "constants.h"
 #include <iostream>
 #include <algorithm>
 #include <limits>
@@ -8,15 +9,6 @@
 
 using namespace Imf;
 using namespace std;
-
-#define SHADOW_RAY 0
-#define REGULAR_RAY 1
-#define REFLECT_RAY 2
-#define STEP_NUM 0.0001
-
-#define NORMAL_MODE 11
-#define SLOW_MODE 22
-#define BBOX_ONLY_MODE 33
 
 int mode = 0;
 
@@ -112,14 +104,9 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 	if (ray_type == SHADOW_RAY) {
 		for (Surface* s : surfaces) {
 			Intersection in;
-			if(s->checkbox(r, in)
+			if (s->intersect(r, in)
 					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
-				if(mode == BBOX_ONLY_MODE) {
-					return Vector3(0, 0, 0);
-				} else if (s->intersect(r, in)
-						&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
-					return Vector3(0, 0, 0);
-				}
+				return Vector3(0, 0, 0);
 			}
 		}
 		// TODO: any non-zero value is good?
@@ -132,35 +119,12 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 
 	// Intersect the scene
 	for (Surface *obj : surfaces) {
-		if (mode == SLOW_MODE) {
-			if (obj->intersect(r, tmp)) {
-				double t = tmp.getT();
-				if (t > min_t && t < best_t && t < max_t) {
-					best_t = t;
-					best_in = tmp;
-					m_id = obj->materialid();
-				}
-			}
-		} else {
-			if (obj->checkbox(r, bbox)) {
-				// Only render the BBoxes!
-				if (mode == BBOX_ONLY_MODE) {
-					double t = bbox.getT();
-					if (t > min_t && t < best_t && t < max_t) {
-						best_t = t;
-						best_in = bbox;
-						m_id = obj->materialid();
-					}
-				} else {
-					if (obj->intersect(r, tmp)) {
-						double t = tmp.getT();
-						if (t > min_t && t < best_t && t < max_t) {
-							best_t = t;
-							best_in = tmp;
-							m_id = obj->materialid();
-						}
-					}
-				}
+		if (obj->intersect(r, tmp)) {
+			double t = tmp.getT();
+			if (t > min_t && t < best_t && t < max_t) {
+				best_t = t;
+				best_in = tmp;
+				m_id = obj->materialid();
 			}
 		}
 	}
