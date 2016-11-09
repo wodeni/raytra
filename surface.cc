@@ -8,6 +8,7 @@
 #include <cmath>
 #include <limits>
 
+
 bool Sphere::intersect(const Ray &r, Intersection &in) const {
 	if (!this->checkbox(r, in))
 		return false;
@@ -66,9 +67,6 @@ bool Plane::intersect(const Ray &r, Intersection &in) const {
 }
 
 bool Triangle::intersect(const Ray& ray, Intersection &in) const {
-
-//	double t0 = 0.0;
-//	double t1 = 1000000.0;
 
 	if (!this->checkbox(ray, in))
 		return false;
@@ -130,27 +128,6 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	double tmax[3], tmin[3];
 	double best_tmax = std::numeric_limits<double>::max();
 	double best_tmin = 0.;
-//	if(a >= 0) {
-//		txmin = a * (min._a - e._a);
-//		txmax = a * (max._a - e._a);
-//	} else {
-//		txmin = a * (max._a - e._a);
-//		txmax = a * (min._a - e._a);
-//	}
-//	if(b >= 0) {
-//		tymin = b * (min._b - e._b);
-//		tymax = b * (max._b - e._b);
-//	} else {
-//		tymin = b * (max._b - e._b);
-//		tymax = b * (min._b - e._b);
-//	}
-//	if(c >= 0) {
-//		tzmin = c * (min._c - e._c);
-//		tzmax = c * (max._c - e._c);
-//	} else {
-//		tzmin = c * (max._c - e._c);
-//		tzmax = c * (min._c - e._c);
-//	}
 
 	// Looping over 3 dimensions
 	for (int i = 0; i < 3; ++i) {
@@ -172,16 +149,113 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 
 	Vector3 normal;
 	// See which surface we intersected and set the normal in accordance
-	// TODO: what if the object is behind the camera?
 	if (best_tmin == tmin[0]) // x plane
 		normal = (d[0] > 0) ? Vector3(-1, 0, 0) : Vector3(1, 0, 0);
 	else if (best_tmin == tmin[1]) // y plane
 		normal = (d[1] > 0) ? Vector3(0, -1, 0) : Vector3(0, 1, 0);
-	else
-		// z plane
+	else // z plane
 		normal = (d[2] > 0) ? Vector3(0, 0, -1) : Vector3(0, 0, 1);
 
 	Point pt = e + best_tmin * d;
 	in.set(best_tmin, pt, normal);
 	return true;
+}
+
+bool BBoxNode::intersect(const Ray&, Intersection&) const {
+}
+
+bool comp_X(Surface *a, Surface *b) {
+	Point ca = a->getBBox().getCenter();
+	Point cb = b->getBBox().getCenter();
+	return ca[0] < cb[0];
+}
+bool comp_Y(Surface *a, Surface *b) {
+	Point ca = a->getBBox().getCenter();
+	Point cb = b->getBBox().getCenter();
+	return ca[1] < cb[1];
+}
+bool comp_Z(Surface *a, Surface *b) {
+	Point ca = a->getBBox().getCenter();
+	Point cb = b->getBBox().getCenter();
+	return ca[2] < cb[2];
+}
+
+void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end,  int AXIS) {
+	size_t N = end - begin;
+	if(N == 1) {
+		// Only one surface in the list
+		_left = *begin;
+		_right = nullptr;
+		_bbox = _left->getBBox();
+	} else if(N == 2) {
+		// Two surfaces in the list
+		_left = *begin;
+		_right = *(begin + 1);
+		_bbox = combineBBoxes(_left->getBBox(), _right->getBBox());
+	} else {
+		// more than two surfaces in the list
+		// sort the list by the centers of BBoxes
+		switch(AXIS) {
+		case 0:
+			std::sort(begin, end, comp_X);
+			break;
+		case 1:
+			std::sort(begin, end, comp_Y);
+			break;
+		case 2:
+			std::sort(begin, end, comp_Z);
+			break;
+		default:
+			break;
+		}
+		// Split the vector and recursive calls on both children
+//		std::vector<Surface *> sub_left(begin, end + (N / 2));
+//		std::vector<Surface *> sub_right(surfaces.begin() + (N / 2) + 1, surfaces.end());
+//		_left = BBoxNode();
+//		_right = BBoxNode();
+		BBoxNode *leftnode = new BBoxNode();
+		BBoxNode *rightnode = new BBoxNode();
+		leftnode->createTree(begin, begin + (N / 2), ((AXIS + 1) % 3));
+		rightnode->createTree(begin + (N / 2) + 1, end, ((AXIS + 1) % 3));
+		_left = leftnode;
+		_right = rightnode;
+		// combine the BBoxes of the children
+		_bbox = combineBBoxes(_left->getBBox(), _right->getBBox());
+	}
+}
+
+BBox BBoxNode::combineBBoxes(const BBox &b1, const BBox &b2) const {
+//	double MIN = std::numeric_limits<double>::min();
+//	double MAX = std::numeric_limits<double>::max();
+//	Point min, max;
+//	Point best_min(MAX, MAX, MAX);
+//	Point best_max(MIN, MIN, MIN);
+//	for(BBox *b : boxes) {
+//		min = b->getMin();
+//		max = b->getMax();
+//		for(int i = 0; i < 3; i++) {
+//			if(min[i] < best_min[i])
+//				best_min[i] = min[i];
+//			if(max[i] > best_max[i])
+//				best_max[i] = max[i];
+//		}
+//	}
+//	Point center = static_cast<Point> (0.5 * (best_max - best_min));
+	Point b1_min = b1.getMin(), b1_max = b1.getMax(),
+		  b2_min = b2.getMin(), b2_max = b2.getMax();
+	Point best_min (std::min(b1_min[0], b2_min[0]),
+					std::min(b1_min[1], b2_min[1]),
+					std::min(b1_min[2], b2_min[2]));
+	Point best_max (std::max(b1_max[0], b2_max[0]),
+					std::max(b1_max[1], b2_max[1]),
+					std::max(b1_max[2], b2_max[2]));
+	Point center = static_cast<Point> (0.5 * (best_max - best_min));
+	return BBox(best_min, best_max, center);
+}
+
+BBoxNode::~BBoxNode() {
+	if(_left)
+		delete _left;
+	if(_right)
+		delete _right;
 }

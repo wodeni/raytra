@@ -6,6 +6,7 @@
 #ifndef SURFACE_H 
 #define SURFACE_H 
 #include <limits>
+#include <vector>
 #include "basemath.h"
 #include "ray.h"
 
@@ -60,6 +61,7 @@ public:
 	}
 	Point getMin() const { return _min; }
 	Point getMax() const { return _max; }
+	Point getCenter() const { return _center; }
 private:
 	Point _min, _max, _center;
 //	int _surfaceid;
@@ -82,6 +84,7 @@ public:
     int materialid() const { return _materialid; }
     void setmaterialid(const int materialid) { _materialid = materialid; }
     virtual bool checkbox(const Ray&, Intersection&) const;
+    BBox getBBox() { return _bbox; }
 protected:
     BBox _bbox;
     int _materialid; // the index of the material of this object
@@ -153,5 +156,21 @@ public:
 private:
 	Point _p1, _p2, _p3;
 	Vector3 _normal;
+};
+
+
+/**
+ * The bounding box node class for BVH tree acceleration
+ */
+class BBoxNode : public Surface {
+public:
+    virtual ~BBoxNode();
+	virtual bool intersect(const Ray&, Intersection&) const override;
+    virtual std::ostream& doprint(std::ostream &os) const override { return os; }
+    void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
+    BBox combineBBoxes(const BBox &, const BBox &) const;
+private:
+	Surface *_left;
+	Surface *_right;
 };
 #endif /* SURFACE_H */
