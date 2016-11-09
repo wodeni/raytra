@@ -56,7 +56,7 @@ Ray Camera::construct_ray(int i, int j) {
 }
 
 void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
-		std::vector<Material *> &materials, std::vector<Light *> &lights) {
+		std::vector<Material *> &materials, std::vector<Light *> &lights, BBoxNode *root) {
 
 	std::cout << "Rendering";
 
@@ -68,6 +68,9 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
 			Vector3(0, 0, 0));
 	materials.push_back(yellow);
+
+	// Construct the BVH tree
+
 
 	res.resizeErase(_ph, _pw);
 
@@ -84,7 +87,7 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 			// Construct ray
 			Ray r = construct_ray(i, j);
 			Vector3 rgb = L(r, 20, 0.001, std::numeric_limits<double>::max(),
-			REGULAR_RAY, surfaces, materials, lights);
+			REGULAR_RAY, surfaces, materials, lights, root);
 			px.r = rgb._a;
 			px.g = rgb._b;
 			px.b = rgb._c;
@@ -96,35 +99,56 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 
 Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		int ray_type, std::vector<Surface *> &surfaces,
-		std::vector<Material *> &materials, std::vector<Light *> &lights) {
+		std::vector<Material *> &materials, std::vector<Light *> &lights,
+		BBoxNode *root) {
 
 	if (recursive_limit == 0)
 		return Vector3(0, 0, 0);
 
 	if (ray_type == SHADOW_RAY) {
-		for (Surface* s : surfaces) {
+		if(mode == SLOW_MODE) {
+			for (Surface* s : surfaces) {
+				Intersection in;
+				if (s->intersect(r, in)
+						&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
+					return Vector3(0, 0, 0);
+				}
+			}
+			return Vector3(1, 1, 1);
+		} else {
 			Intersection in;
-			if (s->intersect(r, in)
+			if (root->intersect(r, in)
 					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
 				return Vector3(0, 0, 0);
+			} else {
+				// TODO: any non-zero value is good?
+				return Vector3(1, 1, 1);
 			}
 		}
-		// TODO: any non-zero value is good?
-		return Vector3(1, 1, 1);
 	}
 
 	double best_t = std::numeric_limits<double>::max();
-	Intersection best_in, tmp, bbox;
+	Intersection best_in, tmp;
 	int m_id;
 
 	// Intersect the scene
-	for (Surface *obj : surfaces) {
-		if (obj->intersect(r, tmp)) {
+	if(mode == SLOW_MODE) {
+		for (Surface *obj : surfaces) {
+			if (obj->intersect(r, tmp)) {
+				double t = tmp.getT();
+				if (t > min_t && t < best_t && t < max_t) {
+					best_t = t;
+					best_in = tmp;
+					m_id = obj->materialid();
+				}
+			}
+		}
+	} else {
+		if (root->intersect(r, tmp)) {
 			double t = tmp.getT();
-			if (t > min_t && t < best_t && t < max_t) {
-				best_t = t;
+			if (t > min_t && t < max_t) {
 				best_in = tmp;
-				m_id = obj->materialid();
+				m_id = root->materialid();
 			}
 		}
 	}
@@ -163,7 +187,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			Ray shadow_ray(intersection, l);
 			Vector3 l_rgb = L(shadow_ray, 1,
 			STEP_NUM, d_length,
-			SHADOW_RAY, surfaces, materials, lights);
+			SHADOW_RAY, surfaces, materials, lights, root);
 			if (l_rgb.length() != 0.) {
 				rgb += m->computeShading(l, e, N, L_e) * (1.0 / d2);
 			}
@@ -177,7 +201,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			Ray refl_r(intersection, refl_dir);
 			Vector3 refl_rgb = L(refl_r, recursive_limit - 1,
 			STEP_NUM, std::numeric_limits<double>::max(),
-			REFLECT_RAY, surfaces, materials, lights);
+			REFLECT_RAY, surfaces, materials, lights, root);
 			return rgb + m->refl().pieceMultiply(refl_rgb);
 		}
 
@@ -225,25 +249,30 @@ int main(int argc, char **argv) {
 	Parser parser;
 	parser.parse(argv[1], surfaces, materials, lights, cam);
 
+	BBoxNode* root = new BBoxNode();
+	root->createTree(surfaces.begin(), surfaces.end(), 0);
+
+
 	Vector3 lightcolor(1., 1., 1.);
 	if (lights.size() == 0) {
 		Light *defaultLight = new PointLight(cam.getPosition(), lightcolor);
 		lights.push_back(defaultLight);
 		std::cout << "No lights! Using default light instead" << std::endl;
 	}
-	cam.render(argv[2], surfaces, materials, lights);
+	cam.render(argv[2], surfaces, materials, lights, root);
 
 	// Dealloctating the memory
 	for (Material* m : materials) {
 		delete m;
 	}
 	materials.clear();
-	for (Surface* s : surfaces) {
-		delete s;
-	}
+//	for (Surface* s : surfaces) {
+//		delete s;
+//	}
 	surfaces.clear();
 	for (Light* l : lights) {
 		delete l;
 	}
 	lights.clear();
+	delete root;
 }

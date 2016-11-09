@@ -9,7 +9,15 @@
 #include <limits>
 
 
-bool Sphere::intersect(const Ray &r, Intersection &in) const {
+void Intersection::copy(const Intersection &c) {
+	_t = c.getT();
+	_normal = c.getNormal();
+	_intersectionPoint = c.getIntersectionPoint();
+	_intersected = c.Intersected();
+}
+
+
+bool Sphere::intersect(const Ray &r, Intersection &in) {
 	if (!this->checkbox(r, in))
 		return false;
 	else {
@@ -43,7 +51,11 @@ bool Sphere::intersect(const Ray &r, Intersection &in) const {
 	}
 }
 
-bool Plane::intersect(const Ray &r, Intersection &in) const {
+bool Plane::intersect(const Ray &r, Intersection &in) {
+
+	if (!this->checkbox(r, in))
+		return false;
+
 	// vec_d dot N
 	double dotproduct = r._dir.dotproduct(_normal);
 	// Not intersection if the plane is parallel with the ray
@@ -66,7 +78,7 @@ bool Plane::intersect(const Ray &r, Intersection &in) const {
 	}
 }
 
-bool Triangle::intersect(const Ray& ray, Intersection &in) const {
+bool Triangle::intersect(const Ray& ray, Intersection &in) {
 
 	if (!this->checkbox(ray, in))
 		return false;
@@ -161,7 +173,35 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	return true;
 }
 
-bool BBoxNode::intersect(const Ray&, Intersection&) const {
+bool BBoxNode::intersect(const Ray &r, Intersection &in) {
+	if(checkbox(r, in)) {
+		bool left_in, right_in;
+		Intersection left_rec, right_rec;
+		left_in = (_left != nullptr) and (_left->intersect(r, left_rec));
+		right_in = (_right != nullptr) and (_right->intersect(r, right_rec));
+		if(left_in and right_in) {
+			if(left_rec.getT() < right_rec.getT()) {
+				in = left_rec;
+				_materialid = _left->materialid();
+			} else {
+				in = right_rec;
+				_materialid = _right->materialid();
+			}
+			return true;
+		} else if(left_in) {
+			in = left_rec;
+			_materialid = _left->materialid();
+			return true;
+		} else if(right_in) {
+			in = right_rec;
+			_materialid = _right->materialid();
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
 }
 
 bool comp_X(Surface *a, Surface *b) {
@@ -209,14 +249,11 @@ void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::
 			break;
 		}
 		// Split the vector and recursive calls on both children
-//		std::vector<Surface *> sub_left(begin, end + (N / 2));
-//		std::vector<Surface *> sub_right(surfaces.begin() + (N / 2) + 1, surfaces.end());
-//		_left = BBoxNode();
-//		_right = BBoxNode();
 		BBoxNode *leftnode = new BBoxNode();
 		BBoxNode *rightnode = new BBoxNode();
 		leftnode->createTree(begin, begin + (N / 2), ((AXIS + 1) % 3));
-		rightnode->createTree(begin + (N / 2) + 1, end, ((AXIS + 1) % 3));
+		// TODO: do we have to do the plus one here?
+		rightnode->createTree(begin + (N / 2), end, ((AXIS + 1) % 3));
 		_left = leftnode;
 		_right = rightnode;
 		// combine the BBoxes of the children

@@ -38,6 +38,7 @@ class Intersection {
 //        bool operator<(const Intersection &rhs) const {
 //            return _t< rhs._t;
 //        }
+        void copy(const Intersection &c);
     private:
         double _t; // the t value of the intersection point(s)
         Vector3 _normal; // the geometric normal
@@ -77,7 +78,7 @@ class Surface {
         return os;
     }
 public:
-    virtual bool intersect(const Ray&, Intersection&) const = 0;
+    virtual bool intersect(const Ray&, Intersection&) = 0;
     Surface () { _materialid = 0; }
     virtual ~Surface() {}
     virtual std::ostream& doprint(std::ostream &os) const = 0;
@@ -102,7 +103,7 @@ class Sphere : public Surface {
         }
         
         ~Sphere() {}
-        virtual bool intersect(const Ray&, Intersection&) const override;
+        virtual bool intersect(const Ray&, Intersection&) override;
         virtual std::ostream& doprint(std::ostream &os) const override {
             os << _origin <<  " " << _radius;
             return os;
@@ -115,8 +116,12 @@ class Sphere : public Surface {
 class Plane : public Surface {
     public:
         Plane(Vector3 normal, double d) 
-            : _normal(normal), _d(d) {}
-        virtual bool intersect(const Ray&, Intersection&) const override;
+            : _normal(normal), _d(d)
+    	{
+
+    	}
+        virtual bool intersect(const Ray&, Intersection&) override;
+        virtual bool checkbox(const Ray&, Intersection&) const override { return true; }
         virtual std::ostream& doprint(std::ostream &os) const override {
             os << _normal <<  " " << _d;
             return os;
@@ -148,7 +153,7 @@ public:
 		_bbox = BBox(min, max, center);
 		_bbox.addEpsilon();
 	}
-    virtual bool intersect(const Ray&, Intersection&) const override;
+    virtual bool intersect(const Ray&, Intersection&) override;
     virtual std::ostream& doprint(std::ostream &os) const override {
         os << _p1 <<  " " << _p2 << " " << _p3;
         return os;
@@ -165,7 +170,7 @@ private:
 class BBoxNode : public Surface {
 public:
     virtual ~BBoxNode();
-	virtual bool intersect(const Ray&, Intersection&) const override;
+	virtual bool intersect(const Ray&, Intersection&) override;
     virtual std::ostream& doprint(std::ostream &os) const override { return os; }
     void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
     BBox combineBBoxes(const BBox &, const BBox &) const;
