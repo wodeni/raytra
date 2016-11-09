@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+class Point;
+
 class Vector3 {
     public:
         double _a, _b, _c;
@@ -22,7 +24,7 @@ class Vector3 {
         Vector3 operator-(const Vector3&) const;
         void operator+=(const Vector3&);
         double operator[](int) const;
-
+        explicit operator Point();
         friend Vector3 operator*(double, const Vector3&);
         friend Vector3 operator*(const Vector3&, double);
 

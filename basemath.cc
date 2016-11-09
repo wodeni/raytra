@@ -117,4 +117,9 @@ Point operator+(const Vector3 &v, const Point &p) {
     return Point(p._a + v._a, p._b + v._b, p._c + v._c);
 }
 
+Vector3::operator Point() {
+	return Point(_a, _b, _c);
+}
+
+
 
