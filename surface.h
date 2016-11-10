@@ -9,6 +9,8 @@
 #include <vector>
 #include "basemath.h"
 #include "ray.h"
+#include "constants.h"
+
 
 using namespace std;
 
@@ -117,10 +119,14 @@ class Plane : public Surface {
         Plane(Vector3 normal, double d) 
             : _normal(normal), _d(d)
     	{
-
     	}
         virtual bool intersect(const Ray&, Intersection&) override;
-        virtual bool checkbox(const Ray&, Intersection&) const override { return false; }
+        virtual bool checkbox(const Ray&, Intersection&) const override {
+        	if(mode != NORMAL_MODE)
+        		return true;
+        	else
+        		return false;
+        }
         virtual std::ostream& doprint(std::ostream &os) const override {
             os << _normal <<  " " << _d;
             return os;

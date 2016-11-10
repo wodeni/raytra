@@ -106,7 +106,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		return Vector3(0, 0, 0);
 
 	if (ray_type == SHADOW_RAY) {
-		if(mode == SLOW_MODE) {
+		if(mode != NORMAL_MODE) {
 			for (Surface* s : surfaces) {
 				Intersection in;
 				if (s->intersect(r, in)
@@ -132,7 +132,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 	int m_id;
 
 	// Intersect the scene
-	if(mode == SLOW_MODE) {
+	if(mode != NORMAL_MODE) {
 		for (Surface *obj : surfaces) {
 			if (obj->intersect(r, tmp)) {
 				double t = tmp.getT();

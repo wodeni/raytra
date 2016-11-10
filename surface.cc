@@ -3,7 +3,6 @@
  * @version: 2016/10/07
  */
 #include "surface.h"
-#include "constants.h"
 #include <iostream>
 #include <cmath>
 #include <limits>
