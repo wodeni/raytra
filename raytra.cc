@@ -129,7 +129,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 
 	double best_t = std::numeric_limits<double>::max();
 	Intersection best_in, tmp;
-	int m_id;
+	int m_id = 0;
 
 	// Intersect the scene
 	if(mode != NORMAL_MODE) {
