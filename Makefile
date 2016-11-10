@@ -41,6 +41,10 @@ all: clean raytra
 hardcoded:
 	g++ -O3 *.cc -I. -I${INCLUDEDIR} -L${LIBDIR} -lIlmImf -lImath -lHalf -Wall -std=c++11 -o raytra
 
+.PHONY: gprof
+gprof:
+	g++ -g -pg *.cc -I. -I${INCLUDEDIR} -L${LIBDIR} -lIlmImf -lImath -lHalf -Wall -std=c++11 -o raytra
+
 .PHONY: tar
 tar:
 	if [ -d ${TAR} ]; then rm -rf ${TAR}; fi
