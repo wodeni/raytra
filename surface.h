@@ -7,6 +7,7 @@
 #define SURFACE_H 
 #include <limits>
 #include <vector>
+#include <algorithm>
 #include "basemath.h"
 #include "ray.h"
 #include "constants.h"
