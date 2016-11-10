@@ -59,7 +59,7 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 			Vector3 n;
 			double d;
 			iss >> n >> d;
-			cursurface = new Plane(n, d);
+//			cursurface = new Plane(n, d);
 		} else if (cmd == "c") {
 			// Camera
 			cameracount++;
