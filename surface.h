@@ -38,7 +38,6 @@ class Intersection {
 //        bool operator<(const Intersection &rhs) const {
 //            return _t< rhs._t;
 //        }
-        void copy(const Intersection &c);
     private:
         double _t; // the t value of the intersection point(s)
         Vector3 _normal; // the geometric normal
@@ -121,7 +120,7 @@ class Plane : public Surface {
 
     	}
         virtual bool intersect(const Ray&, Intersection&) override;
-        virtual bool checkbox(const Ray&, Intersection&) const override { return true; }
+        virtual bool checkbox(const Ray&, Intersection&) const override { return false; }
         virtual std::ostream& doprint(std::ostream &os) const override {
             os << _normal <<  " " << _d;
             return os;
