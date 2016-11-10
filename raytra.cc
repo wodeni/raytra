@@ -86,7 +86,7 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 
 			// Construct ray
 			Ray r = construct_ray(i, j);
-			Vector3 rgb = L(r, 20, 0.001, std::numeric_limits<double>::max(),
+			Vector3 rgb = L(r, 20, 0.001, DOUBLE_MAX,
 			REGULAR_RAY, surfaces, materials, lights, root);
 			px.r = rgb._a;
 			px.g = rgb._b;
@@ -106,10 +106,11 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		return Vector3(0, 0, 0);
 
 	if (ray_type == SHADOW_RAY) {
-		if(mode != NORMAL_MODE) {
+		if(mode == SLOW_MODE) {
+			double NOTUSED = DOUBLE_MIN;
 			for (Surface* s : surfaces) {
 				Intersection in;
-				if (s->intersect(r, in)
+				if (s->intersect(r, in, NOTUSED)
 						&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
 					return Vector3(0, 0, 0);
 				}
@@ -117,7 +118,8 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			return Vector3(1, 1, 1);
 		} else {
 			Intersection in;
-			if (root->intersect(r, in)
+			double best_t = DOUBLE_MAX;
+			if (root->intersect(r, in, best_t)
 					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
 				return Vector3(0, 0, 0);
 			} else {
@@ -127,14 +129,15 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		}
 	}
 
-	double best_t = std::numeric_limits<double>::max();
+	double best_t = DOUBLE_MAX;
 	Intersection best_in, tmp;
 	int m_id = 0;
 
 	// Intersect the scene
-	if(mode != NORMAL_MODE) {
+	if(mode == SLOW_MODE) {
+		double NOTUSED = DOUBLE_MIN;
 		for (Surface *obj : surfaces) {
-			if (obj->intersect(r, tmp)) {
+			if (obj->intersect(r, tmp, NOTUSED)) {
 				double t = tmp.getT();
 				if (t > min_t && t < best_t && t < max_t) {
 					best_t = t;
@@ -144,7 +147,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			}
 		}
 	} else {
-		if (root->intersect(r, tmp)) {
+		if (root->intersect(r, tmp, best_t)) {
 			double t = tmp.getT();
 			if (t > min_t && t < max_t) {
 				best_in = tmp;
@@ -200,7 +203,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			Vector3 refl_dir = r._dir - (2 * d_dot_N) * N;
 			Ray refl_r(intersection, refl_dir);
 			Vector3 refl_rgb = L(refl_r, recursive_limit - 1,
-			STEP_NUM, std::numeric_limits<double>::max(),
+			STEP_NUM, DOUBLE_MAX,
 			REFLECT_RAY, surfaces, materials, lights, root);
 			return rgb + m->refl().pieceMultiply(refl_rgb);
 		}

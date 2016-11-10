@@ -5,10 +5,8 @@
 #include "surface.h"
 #include <iostream>
 #include <cmath>
-#include <limits>
 
-
-bool Sphere::intersect(const Ray &r, Intersection &in) {
+bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
 	if (!this->checkbox(r, in))
 		return false;
 	else {
@@ -38,11 +36,12 @@ bool Sphere::intersect(const Ray &r, Intersection &in) {
 		Point pt = r._origin + (t * r._dir);
 		Vector3 n = (1 / _radius) * (pt - _origin);
 		in.set(t, pt, n);
+		if(t < best_t) best_t = t;
 		return true;
 	}
 }
 
-bool Plane::intersect(const Ray &r, Intersection &in) {
+bool Plane::intersect(const Ray &r, Intersection &in, double &best_t) {
 
 	if (!this->checkbox(r, in))
 		return false;
@@ -65,13 +64,14 @@ bool Plane::intersect(const Ray &r, Intersection &in) {
 	} else {
 		Point pt = r._origin + (t * r._dir);
 		in.set(t, pt, _normal);
+		if(t < best_t) best_t = t;
 		return true;
 	}
 }
 
-bool Triangle::intersect(const Ray& ray, Intersection &in) {
+bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 
-	if (!this->checkbox(ray, in))
+	if (!this->checkbox(r, in))
 		return false;
 	else {
 		if (mode == BBOX_ONLY_MODE)
@@ -80,7 +80,7 @@ bool Triangle::intersect(const Ray& ray, Intersection &in) {
 		// Using the notation on the textbook. E.g: Vector abc has componets <a, b, c>
 		Vector3 abc = _p1 - _p2; // a - b
 		Vector3 def = _p1 - _p3; // a - c
-		Vector3 ghi = ray._dir; // d
+		Vector3 ghi = r._dir; // d
 		double M, t, beta, gamma;
 		// Symbolizing the entries in matrix A
 		double a = abc._a, b = abc._b, c = abc._c;
@@ -97,7 +97,7 @@ bool Triangle::intersect(const Ray& ray, Intersection &in) {
 		if (M == 0)
 			return false;
 
-		Vector3 jkl = _p1 - ray._origin; // a - e
+		Vector3 jkl = _p1 - r._origin; // a - e
 
 		double j = jkl._a, k = jkl._b, l = jkl._c;
 
@@ -115,8 +115,9 @@ bool Triangle::intersect(const Ray& ray, Intersection &in) {
 		if (beta < 0 or beta > (1 - gamma))
 			return false;
 
-		Point pt = ray._origin + (t * ray._dir);
+		Point pt = r._origin + (t * r._dir);
 		in.set(t, pt, _normal);
+		if(t < best_t) best_t = t;
 		return true;
 	}
 }
@@ -129,7 +130,7 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	Point e = r._origin, min = _bbox.getMin(), max = _bbox.getMax();
 	Vector3 d = r._dir;
 	double tmax[3], tmin[3];
-	double best_tmax = std::numeric_limits<double>::max();
+	double best_tmax = DOUBLE_MAX;
 	double best_tmin = 0.;
 
 	// Looping over 3 dimensions
@@ -164,12 +165,12 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	return true;
 }
 
-bool BBoxNode::intersect(const Ray &r, Intersection &in) {
-	if(checkbox(r, in)) {
+bool BBoxNode::intersect(const Ray &r, Intersection &in, double &best_t) {
+	if(checkbox(r, in) and in.getT() < best_t) {
 		bool left_in, right_in;
 		Intersection left_rec, right_rec;
-		left_in = (_left != nullptr) and (_left->intersect(r, left_rec)) and (left_rec.getT() > STEP_NUM);
-		right_in = (_right != nullptr) and (_right->intersect(r, right_rec)) and (right_rec.getT() > STEP_NUM);
+		left_in = (_left != nullptr) and (_left->intersect(r, left_rec, best_t)) and (left_rec.getT() > STEP_NUM);
+		right_in = (_right != nullptr) and (_right->intersect(r, right_rec, best_t)) and (right_rec.getT() > STEP_NUM);
 		if(left_in and right_in) {
 			if(left_rec.getT() < right_rec.getT()) {
 				in = left_rec;
@@ -253,22 +254,7 @@ void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::
 }
 
 BBox BBoxNode::combineBBoxes(const BBox &b1, const BBox &b2) const {
-//	double MIN = std::numeric_limits<double>::min();
-//	double MAX = std::numeric_limits<double>::max();
-//	Point min, max;
-//	Point best_min(MAX, MAX, MAX);
-//	Point best_max(MIN, MIN, MIN);
-//	for(BBox *b : boxes) {
-//		min = b->getMin();
-//		max = b->getMax();
-//		for(int i = 0; i < 3; i++) {
-//			if(min[i] < best_min[i])
-//				best_min[i] = min[i];
-//			if(max[i] > best_max[i])
-//				best_max[i] = max[i];
-//		}
-//	}
-//	Point center = static_cast<Point> (0.5 * (best_max - best_min));
+
 	Point b1_min = b1.getMin(), b1_max = b1.getMax(),
 		  b2_min = b2.getMin(), b2_max = b2.getMax();
 	Point best_min (std::min(b1_min[0], b2_min[0]),

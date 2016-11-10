@@ -5,7 +5,6 @@
 
 #ifndef SURFACE_H 
 #define SURFACE_H 
-#include <limits>
 #include <vector>
 #include <algorithm>
 #include "basemath.h"
@@ -19,7 +18,7 @@ class Intersection {
     public:
 		Intersection() {
 			_intersected = false;
-			_t = std::numeric_limits<double>::max();
+			_t = DOUBLE_MAX;
 			_intersectionPoint = Point();
 			_surfaceid = -1;
 		}
@@ -80,7 +79,7 @@ class Surface {
         return os;
     }
 public:
-    virtual bool intersect(const Ray&, Intersection&) = 0;
+    virtual bool intersect(const Ray&, Intersection&, double&) = 0;
     Surface () { _materialid = 0; }
     virtual ~Surface() {}
     virtual std::ostream& doprint(std::ostream &os) const = 0;
@@ -105,7 +104,7 @@ class Sphere : public Surface {
         }
         
         ~Sphere() {}
-        virtual bool intersect(const Ray&, Intersection&) override;
+        virtual bool intersect(const Ray&, Intersection&, double&) override;
         virtual std::ostream& doprint(std::ostream &os) const override {
             os << _origin <<  " " << _radius;
             return os;
@@ -121,9 +120,9 @@ class Plane : public Surface {
             : _normal(normal), _d(d)
     	{
     	}
-        virtual bool intersect(const Ray&, Intersection&) override;
+        virtual bool intersect(const Ray&, Intersection&, double&) override;
         virtual bool checkbox(const Ray&, Intersection&) const override {
-        	if(mode != NORMAL_MODE)
+        	if(mode == SLOW_MODE)
         		return true;
         	else
         		return false;
@@ -159,7 +158,7 @@ public:
 		_bbox = BBox(min, max, center);
 		_bbox.addEpsilon();
 	}
-    virtual bool intersect(const Ray&, Intersection&) override;
+    virtual bool intersect(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override {
         os << _p1 <<  " " << _p2 << " " << _p3;
         return os;
@@ -176,7 +175,7 @@ private:
 class BBoxNode : public Surface {
 public:
     virtual ~BBoxNode();
-	virtual bool intersect(const Ray&, Intersection&) override;
+	virtual bool intersect(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override { return os; }
     void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
     BBox combineBBoxes(const BBox &, const BBox &) const;
