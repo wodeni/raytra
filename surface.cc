@@ -36,7 +36,7 @@ bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
 		Point pt = r._origin + (t * r._dir);
 		Vector3 n = (1 / _radius) * (pt - _origin);
 		in.set(t, pt, n);
-		if(t < best_t) best_t = t;
+		if(t < best_t && t > STEP_NUM) best_t = t;
 		return true;
 	}
 }
@@ -64,7 +64,7 @@ bool Plane::intersect(const Ray &r, Intersection &in, double &best_t) {
 	} else {
 		Point pt = r._origin + (t * r._dir);
 		in.set(t, pt, _normal);
-		if(t < best_t) best_t = t;
+		if(t < best_t && t > STEP_NUM) best_t = t;
 		return true;
 	}
 }
@@ -117,7 +117,7 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 
 		Point pt = r._origin + (t * r._dir);
 		in.set(t, pt, _normal);
-		if(t < best_t) best_t = t;
+		if(t < best_t && t > STEP_NUM) best_t = t;
 		return true;
 	}
 }
