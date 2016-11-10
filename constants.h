@@ -4,6 +4,7 @@
  *  Created on: Nov 7, 2016
  *      Author: niw
  */
+#include <limits>
 
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
@@ -18,5 +19,7 @@
 #define BBOX_ONLY_MODE 33
 
 extern int mode;
+static const double DOUBLE_MAX = std::numeric_limits<double>::max();
+static const double DOUBLE_MIN = std::numeric_limits<double>::min();
 
 #endif /* CONSTANTS_H_ */
