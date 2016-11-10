@@ -9,14 +9,6 @@
 #include <limits>
 
 
-void Intersection::copy(const Intersection &c) {
-	_t = c.getT();
-	_normal = c.getNormal();
-	_intersectionPoint = c.getIntersectionPoint();
-	_intersected = c.Intersected();
-}
-
-
 bool Sphere::intersect(const Ray &r, Intersection &in) {
 	if (!this->checkbox(r, in))
 		return false;
@@ -177,8 +169,8 @@ bool BBoxNode::intersect(const Ray &r, Intersection &in) {
 	if(checkbox(r, in)) {
 		bool left_in, right_in;
 		Intersection left_rec, right_rec;
-		left_in = (_left != nullptr) and (_left->intersect(r, left_rec));
-		right_in = (_right != nullptr) and (_right->intersect(r, right_rec));
+		left_in = (_left != nullptr) and (_left->intersect(r, left_rec)) and (left_rec.getT() > STEP_NUM);
+		right_in = (_right != nullptr) and (_right->intersect(r, right_rec)) and (right_rec.getT() > STEP_NUM);
 		if(left_in and right_in) {
 			if(left_rec.getT() < right_rec.getT()) {
 				in = left_rec;
