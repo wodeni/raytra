@@ -6,11 +6,12 @@ CXX = g++
 ifeq (${USER}, niw)
 INCLUDEDIR = /usr/local/include/OpenEXR
 LIBDIR = /usr/local/lib
+INCLUDES = -I. -isystem ${INCLUDEDIR}
 else
 INCLUDEDIR = /usr/include/OpenEXR
 LIBDIR = /usr/lib
+INCLUDES = -I. ${INCLUDEDIR}
 endif
-INCLUDES = -I. -isystem ${INCLUDEDIR}
 CXXFLAGS = -g -Wall -std=c++11 ${INCLUDES}
 LDFLAGS = -g  -L${LIBDIR}
 LDLIBS = -lIlmImf -lImath -lHalf
