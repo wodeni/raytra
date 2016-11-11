@@ -151,7 +151,7 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 //	double tmax[3], tmin[3];
 	double txmin, txmax;
 //	double best_tmax = DOUBLE_MAX;
-//	double best_tmin = 0.;
+	double best_tmin = DOUBLE_MAX;
 
 	// Looping over 3 dimensions
 //	for (int i = 0; i < 3; ++i) {
@@ -178,6 +178,8 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 		txmax = a * (_bbox._xmin - e._xyz[0]);
 		txmin = a * (_bbox._xmax - e._xyz[0]);
 	}
+	if(txmin < best_tmin)
+		best_tmin = txmin;
 	double tymin, tymax;
 	double b = 1 / r._dir._xyz[1];
 	if(b >= 0) {
@@ -187,26 +189,27 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 		tymax = b * (_bbox._ymin - e._xyz[1]);
 		tymin = b * (_bbox._ymax - e._xyz[1]);
 	}
-
 	if(txmin > tymax || tymin > txmax)
 		return false;
-
+	if(tymin < best_tmin)
+			best_tmin = tymin;
 	double tzmin, tzmax;
 	double c = 1 / r._dir._xyz[2];
 	if(c >= 0) {
-		tzmin = c * (_bbox._xmin - e._xyz[2]);
-		tzmax = c * (_bbox._xmax - e._xyz[2]);
+		tzmin = c * (_bbox._zmin - e._xyz[2]);
+		tzmax = c * (_bbox._zmax - e._xyz[2]);
 	} else {
-		tzmax = c * (_bbox._xmin - e._xyz[2]);
-		tzmin = c * (_bbox._xmax - e._xyz[2]);
+		tzmax = c * (_bbox._zmin - e._xyz[2]);
+		tzmin = c * (_bbox._zmax - e._xyz[2]);
 	}
 
 	if(txmin > tzmax || tzmin > txmax)
 		return false;
 	if(tymin > tzmax || tzmin > tymax)
 		return false;
-
-	double best_tmin = std::min({txmin, tymin, tzmin});
+	if(tzmin < best_tmin)
+			best_tmin = tzmin;
+//	double best_tmin = std::min(txmin, std::min(tymin, tzmin));
 
 	if(mode == BBOX_ONLY_MODE) {
 		Vector3 normal;
