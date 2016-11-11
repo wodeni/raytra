@@ -141,7 +141,11 @@ public:
 	Triangle (Point p1, Point p2, Point p3)
 		: _p1(p1), _p2(p2), _p3(p3)
 	{
-		_normal = (p2 - p1).crossproduct(p3 - p1);
+		Vector3 abc = _p1 - _p2; // a - b
+		Vector3 def = _p1 - _p3; // a - c
+		a = abc._a, b = abc._b, c = abc._c;
+		d = def._a, e = def._b, f = def._c;
+		_normal = (-1.0 * abc).crossproduct(-1.0 * def);
 		_normal.normalize();
 		double xmin = min( {p1._a, p2._a, p3._a} );
 		double ymin = min( {p1._b, p2._b, p3._b} );
@@ -157,6 +161,7 @@ public:
 					   (zmax - zmin) / 2);
 		_bbox = BBox(min, max, center);
 		_bbox.addEpsilon();
+
 	}
     virtual bool intersect(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override {
@@ -165,6 +170,7 @@ public:
     }
 private:
 	Point _p1, _p2, _p3;
+	double a, b, c, d, e, f;
 	Vector3 _normal;
 };
 

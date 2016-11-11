@@ -77,21 +77,13 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 		if (mode == BBOX_ONLY_MODE)
 			return true;
 
-		// Using the notation on the textbook. E.g: Vector abc has componets <a, b, c>
-		Vector3 abc = _p1 - _p2; // a - b
-		Vector3 def = _p1 - _p3; // a - c
-		Vector3 ghi = r._dir; // d
-		double M, t, beta, gamma;
-		// Symbolizing the entries in matrix A
-		double a = abc._a, b = abc._b, c = abc._c;
-		double d = def._a, e = def._b, f = def._c;
-		double g = ghi._a, h = ghi._b, i = ghi._c;
+		double g = r._dir._a, h = r._dir._b, i = r._dir._c;
 
 		double ei_hf = e * i - h * f; // ei - hf
 		double gf_di = g * f - d * i; // gf - di
 		double dh_eg = d * h - e * g; // dh - eg
 
-		M = a * ei_hf + b * gf_di + c * dh_eg; // |A|
+		double M = a * ei_hf + b * gf_di + c * dh_eg; // |A|
 
 		// Adopted from solution code
 		if (M == 0)
@@ -105,13 +97,13 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 		double jc_al = j * c - a * l; // jc - al
 		double bl_kc = b * l - k * c; // bl - kc
 
-		t = -1.0 * (f * ak_jb + e * jc_al + d * bl_kc) / M; // Compute the value of t
+		double t = -1.0 * (f * ak_jb + e * jc_al + d * bl_kc) / M; // Compute the value of t
 		if (t <= 0.)
 			return false;
-		gamma = (i * ak_jb + h * jc_al + g * bl_kc) / M; // Compute the value of gamma
+		double gamma = (i * ak_jb + h * jc_al + g * bl_kc) / M; // Compute the value of gamma
 		if (gamma < 0 or gamma > 1)
 			return false;
-		beta = (j * ei_hf + k * gf_di + l * dh_eg) / M; // Compute the value of beta
+		double beta = (j * ei_hf + k * gf_di + l * dh_eg) / M; // Compute the value of beta
 		if (beta < 0 or beta > (1 - gamma))
 			return false;
 
