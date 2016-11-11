@@ -12,7 +12,7 @@
 #define SHADOW_RAY 0
 #define REGULAR_RAY 1
 #define REFLECT_RAY 2
-#define STEP_NUM 0.0001
+#define STEP_NUM 0.000001
 
 #define NORMAL_MODE 11
 #define SLOW_MODE 22

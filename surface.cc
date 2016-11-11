@@ -150,18 +150,20 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 		if (best_tmin > best_tmax)
 			return false;
 	}
-
 	Vector3 normal;
-	// See which surface we intersected and set the normal in accordance
-	if (best_tmin == tmin[0]) // x plane
-		normal = (d[0] > 0) ? Vector3(-1, 0, 0) : Vector3(1, 0, 0);
-	else if (best_tmin == tmin[1]) // y plane
-		normal = (d[1] > 0) ? Vector3(0, -1, 0) : Vector3(0, 1, 0);
-	else // z plane
-		normal = (d[2] > 0) ? Vector3(0, 0, -1) : Vector3(0, 0, 1);
+	if(mode == BBOX_ONLY_MODE) {
+		// See which surface we intersected and set the normal in accordance
+		if (best_tmin == tmin[0]) // x plane
+			normal = (d[0] > 0) ? Vector3(-1, 0, 0) : Vector3(1, 0, 0);
+		else if (best_tmin == tmin[1]) // y plane
+			normal = (d[1] > 0) ? Vector3(0, -1, 0) : Vector3(0, 1, 0);
+		else // z plane
+			normal = (d[2] > 0) ? Vector3(0, 0, -1) : Vector3(0, 0, 1);
 
-	Point pt = e + best_tmin * d;
-	in.set(best_tmin, pt, normal);
+		Point pt = e + best_tmin * d;
+		in.set(best_tmin, pt, normal);
+	}
+	in.setT(best_tmin);
 	return true;
 }
 
