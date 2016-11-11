@@ -18,9 +18,9 @@ class Intersection {
     public:
 		Intersection() {
 			_intersected = false;
-			_t = DOUBLE_MAX;
-			_intersectionPoint = Point();
-			_surfaceid = -1;
+//			_t = DOUBLE_MAX;
+//			_intersectionPoint = Point();
+//			_surfaceid = -1;
 		}
 		void set(const double t, const Point &pt, const Vector3 &normal) {
 			_t = t;  _normal = normal; _intersected = true;
@@ -54,18 +54,26 @@ class Intersection {
 class BBox {
 public:
 	BBox () {}
-	BBox(const Point min, const Point max, const Point center)
-	{ _min = min; _max = max; _center = center; }
-	void addEpsilon() {
-		double e = STEP_NUM;
-		_min = Point (_min._xyz[0] - e, _min._xyz[1] - e, _min._xyz[2] - e);
-		_max = Point (_max._xyz[0] + e, _max._xyz[1] + e, _max._xyz[2] + e);
+	BBox(double xi, double yi, double zi, double xa, double ya, double za, double x, double y, double z)
+	{
+		_xmin = xi; _ymin = yi; _zmin = zi;
+		_xmax = xa; _ymax = ya; _zmax = za;
+		_x = x; _y = y; _z = z;
 	}
+	void addEpsilon() {
+//		double e = STEP_NUM;
+//		_min = Point (_min._xyz[0] - e, _min._xyz[1] - e, _min._xyz[2] - e);
+//		_max = Point (_max._xyz[0] + e, _max._xyz[1] + e, _max._xyz[2] + e);
+		_xmin -= STEP_NUM; _ymin -= STEP_NUM; _zmin -= STEP_NUM;
+		_xmax += STEP_NUM; _ymax += STEP_NUM; _zmax += STEP_NUM;
+	}
+	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax;
+	double _x, _y, _z;
 //	Point getMin() const { return _min; }
 //	Point getMax() const { return _max; }
-	Point getCenter() const { return _center; }
+//	Point getCenter() const { return _center; }
 //private:
-	Point _min, _max, _center;
+//	Point _min, _max, _center;
 //	int _surfaceid;
 };
 
@@ -87,8 +95,9 @@ public:
     void setmaterialid(const int materialid) { _materialid = materialid; }
     virtual bool checkbox(const Ray&, Intersection&) const;
     BBox getBBox() { return _bbox; }
+    BBox _bbox; // TODO: is this OOP?
+
 protected:
-    BBox _bbox;
     int _materialid; // the index of the material of this object
 };
 
@@ -97,9 +106,12 @@ class Sphere : public Surface {
         Sphere(const Point &origin, const float &radius)
             : _origin(origin), _radius(radius)
         {
-        	Point min(origin._xyz[0] - radius, origin._xyz[1] - radius, origin._xyz[2] - radius);
-        	Point max(origin._xyz[0] + radius, origin._xyz[1] + radius, origin._xyz[2] + radius);
-        	_bbox = BBox(min, max, origin);
+//        	Point min(origin._xyz[0] - radius, origin._xyz[1] - radius, origin._xyz[2] - radius);
+//        	Point max();
+        	_bbox = BBox(
+        			origin._xyz[0] - radius, origin._xyz[1] - radius, origin._xyz[2] - radius,
+        			origin._xyz[0] + radius, origin._xyz[1] + radius, origin._xyz[2] + radius,
+					origin._xyz[0], origin._xyz[1], origin._xyz[2]);
     		_bbox.addEpsilon();
         }
         
