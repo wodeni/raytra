@@ -12,7 +12,8 @@ class Point;
 
 class Vector3 {
     public:
-        double _a, _b, _c;
+//        double _a, _b, _c;
+		double _xyz[3];
         Vector3 ();
         Vector3 (double, double, double);
         Vector3 crossproduct (const Vector3 &) const;
@@ -34,7 +35,8 @@ class Vector3 {
 class Point {
     friend std::ostream &operator<<(std::ostream&, Point);
     public:
-        double _a, _b, _c;
+//        double _a, _b, _c;
+    	double _xyz[3];
         Point ();
         Point (double, double, double);
         Vector3 operator-(const Point&) const;

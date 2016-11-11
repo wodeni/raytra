@@ -28,7 +28,7 @@ class Material {
 
         Vector3 refl() const { return _refl; }
 
-        bool reflective() const { return _refl._a != 0 or _refl._b != 0 or _refl._c != 0; }
+        bool reflective() const { return _refl._xyz[0] != 0 or _refl._xyz[1] != 0 or _refl._xyz[2] != 0; }
 
         Vector3 computeShading (
                     const Vector3 &L, // unit vector to the light

@@ -57,14 +57,14 @@ public:
 	BBox(const Point min, const Point max, const Point center)
 	{ _min = min; _max = max; _center = center; }
 	void addEpsilon() {
-		double e = 1.0e-4;
-		_min = Point (_min._a - e, _min._b - e, _min._c - e);
-		_max = Point (_max._a + e, _max._b + e, _max._c + e);
+		double e = STEP_NUM;
+		_min = Point (_min._xyz[0] - e, _min._xyz[1] - e, _min._xyz[2] - e);
+		_max = Point (_max._xyz[0] + e, _max._xyz[1] + e, _max._xyz[2] + e);
 	}
-	Point getMin() const { return _min; }
-	Point getMax() const { return _max; }
+//	Point getMin() const { return _min; }
+//	Point getMax() const { return _max; }
 	Point getCenter() const { return _center; }
-private:
+//private:
 	Point _min, _max, _center;
 //	int _surfaceid;
 };
@@ -97,8 +97,8 @@ class Sphere : public Surface {
         Sphere(const Point &origin, const float &radius)
             : _origin(origin), _radius(radius)
         {
-        	Point min(origin._a - radius, origin._b - radius, origin._c - radius);
-        	Point max(origin._a + radius, origin._b + radius, origin._c + radius);
+        	Point min(origin._xyz[0] - radius, origin._xyz[1] - radius, origin._xyz[2] - radius);
+        	Point max(origin._xyz[0] + radius, origin._xyz[1] + radius, origin._xyz[2] + radius);
         	_bbox = BBox(min, max, origin);
     		_bbox.addEpsilon();
         }
@@ -138,31 +138,7 @@ class Plane : public Surface {
 
 class Triangle : public Surface {
 public:
-	Triangle (Point p1, Point p2, Point p3)
-		: _p1(p1), _p2(p2), _p3(p3)
-	{
-		Vector3 abc = _p1 - _p2; // a - b
-		Vector3 def = _p1 - _p3; // a - c
-		a = abc._a, b = abc._b, c = abc._c;
-		d = def._a, e = def._b, f = def._c;
-		_normal = (-1.0 * abc).crossproduct(-1.0 * def);
-		_normal.normalize();
-		double xmin = min( {p1._a, p2._a, p3._a} );
-		double ymin = min( {p1._b, p2._b, p3._b} );
-		double zmin = min( {p1._c, p2._c, p3._c} );
-		double xmax = max( {p1._a, p2._a, p3._a} );
-		double ymax = max( {p1._b, p2._b, p3._b} );
-		double zmax = max( {p1._c, p2._c, p3._c} );
-		Point min (xmin, ymin, zmin);
-		Point max (xmax, ymax, zmax);
-		// TODO: is the center correct?
-		Point center ( (xmax - xmin) / 2,
-					   (ymax - ymin) / 2,
-					   (zmax - zmin) / 2);
-		_bbox = BBox(min, max, center);
-		_bbox.addEpsilon();
-
-	}
+	Triangle (Point p1, Point p2, Point p3);
     virtual bool intersect(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override {
         os << _p1 <<  " " << _p2 << " " << _p3;

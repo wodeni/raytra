@@ -20,9 +20,9 @@ Vector3 Material::computeShading (
 
     // Diffuse component computation
     if(n_dot_l > 0) {
-        Vector3 diffvec (_diff._a * L_e._a * n_dot_l,
-                         _diff._b * L_e._b * n_dot_l,
-                         _diff._c * L_e._c * n_dot_l);
+        Vector3 diffvec (_diff._xyz[0] * L_e._xyz[0] * n_dot_l,
+                         _diff._xyz[1] * L_e._xyz[1] * n_dot_l,
+                         _diff._xyz[2] * L_e._xyz[2] * n_dot_l);
         res += diffvec;
     }
 
@@ -39,9 +39,9 @@ Vector3 Material::computeShading (
 
         if(n_dot_h > 0.) {
             n_dot_h = pow(n_dot_h, _r);
-            Vector3 specvec (_spec._a * L_e._a * n_dot_h,
-                             _spec._b * L_e._b * n_dot_h,
-                             _spec._c * L_e._c * n_dot_h);
+            Vector3 specvec (_spec._xyz[0] * L_e._xyz[0] * n_dot_h,
+                             _spec._xyz[1] * L_e._xyz[1] * n_dot_h,
+                             _spec._xyz[2] * L_e._xyz[2] * n_dot_h);
 
             res += specvec;
         }

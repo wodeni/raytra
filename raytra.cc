@@ -88,9 +88,9 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 			Ray r = construct_ray(i, j);
 			Vector3 rgb = L(r, 20, 0.001, DOUBLE_MAX,
 			REGULAR_RAY, surfaces, materials, lights, root);
-			px.r = rgb._a;
-			px.g = rgb._b;
-			px.b = rgb._c;
+			px.r = rgb._xyz[0];
+			px.g = rgb._xyz[1];
+			px.b = rgb._xyz[2];
 		}
 	}
 	this->writeRgba(filename, &res[0][0]);

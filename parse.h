@@ -17,11 +17,11 @@
 using namespace std;
 
 inline istream &operator>>(istream &is, Point &f) {
-    return is>>f._a>>f._b>>f._c;
+    return is>>f._xyz[0]>>f._xyz[1]>>f._xyz[2];
 }
 
 inline istream &operator>>(istream &is, Vector3 &f) {
-    return is>>f._a>>f._b>>f._c;
+    return is>>f._xyz[0]>>f._xyz[1]>>f._xyz[2];
 }
 
 /* To avoid two header files including each other,

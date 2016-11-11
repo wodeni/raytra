@@ -6,6 +6,32 @@
 #include <iostream>
 #include <cmath>
 
+Triangle::Triangle(Point p1, Point p2, Point p3)
+		: _p1(p1), _p2(p2), _p3(p3)
+{
+	Vector3 abc = _p1 - _p2; // a - b
+	Vector3 def = _p1 - _p3; // a - c
+	a = abc._xyz[0], b = abc._xyz[1], c = abc._xyz[2];
+	d = def._xyz[0], e = def._xyz[1], f = def._xyz[2];
+	_normal = (-1.0 * abc).crossproduct(-1.0 * def);
+	_normal.normalize();
+	double xmin = min( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
+	double ymin = min( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
+	double zmin = min( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
+	double xmax = max( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
+	double ymax = max( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
+	double zmax = max( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
+	Point min (xmin, ymin, zmin);
+	Point max (xmax, ymax, zmax);
+	// TODO: is the center correct?
+	Point center ( (xmax - xmin) / 2,
+				   (ymax - ymin) / 2,
+				   (zmax - zmin) / 2);
+	_bbox = BBox(min, max, center);
+	_bbox.addEpsilon();
+
+}
+
 bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
 	if (!this->checkbox(r, in))
 		return false;
@@ -77,7 +103,7 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 		if (mode == BBOX_ONLY_MODE)
 			return true;
 
-		double g = r._dir._a, h = r._dir._b, i = r._dir._c;
+		double g = r._dir._xyz[0], h = r._dir._xyz[1], i = r._dir._xyz[2];
 
 		double ei_hf = e * i - h * f; // ei - hf
 		double gf_di = g * f - d * i; // gf - di
@@ -91,7 +117,7 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 
 		Vector3 jkl = _p1 - r._origin; // a - e
 
-		double j = jkl._a, k = jkl._b, l = jkl._c;
+		double j = jkl._xyz[0], k = jkl._xyz[1], l = jkl._xyz[2];
 
 		double ak_jb = a * k - j * b; // ak - jb
 		double jc_al = j * c - a * l; // jc - al
@@ -119,21 +145,21 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	if(mode == SLOW_MODE)
 		return true;
 
-	Point e = r._origin, min = _bbox.getMin(), max = _bbox.getMax();
-	Vector3 d = r._dir;
+	const Point &e = r._origin
+			, &min = _bbox._min, &max = _bbox._max;
 	double tmax[3], tmin[3];
 	double best_tmax = DOUBLE_MAX;
 	double best_tmin = 0.;
 
 	// Looping over 3 dimensions
 	for (int i = 0; i < 3; ++i) {
-		double a = 1 / d[i];
+		double a = 1 / r._dir._xyz[i];
 		if (a >= 0) {
-			tmin[i] = a * (min[i] - e[i]);
-			tmax[i] = a * (max[i] - e[i]);
+			tmin[i] = a * (min._xyz[i] - e._xyz[i]);
+			tmax[i] = a * (max._xyz[i] - e._xyz[i]);
 		} else {
-			tmax[i] = a * (min[i] - e[i]);
-			tmin[i] = a * (max[i] - e[i]);
+			tmax[i] = a * (min._xyz[i] - e._xyz[i]);
+			tmin[i] = a * (max._xyz[i] - e._xyz[i]);
 		}
 		if (tmin[i] > best_tmin)
 			best_tmin = tmin[i];
@@ -144,6 +170,7 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	}
 	Vector3 normal;
 	if(mode == BBOX_ONLY_MODE) {
+		Vector3 d = r._dir;
 		// See which surface we intersected and set the normal in accordance
 		if (best_tmin == tmin[0]) // x plane
 			normal = (d[0] > 0) ? Vector3(-1, 0, 0) : Vector3(1, 0, 0);
@@ -249,8 +276,8 @@ void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::
 
 BBox BBoxNode::combineBBoxes(const BBox &b1, const BBox &b2) const {
 
-	Point b1_min = b1.getMin(), b1_max = b1.getMax(),
-		  b2_min = b2.getMin(), b2_max = b2.getMax();
+	Point b1_min = b1._min, b1_max = b1._max,
+		  b2_min = b2._min, b2_max = b2._max;
 	Point best_min (std::min(b1_min[0], b2_min[0]),
 					std::min(b1_min[1], b2_min[1]),
 					std::min(b1_min[2], b2_min[2]));
