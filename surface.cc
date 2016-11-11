@@ -148,28 +148,9 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 		return true;
 
 	const Point &e = r._origin;
-//	double tmax[3], tmin[3];
 	double txmin, txmax;
-//	double best_tmax = DOUBLE_MAX;
-	double best_tmin = DOUBLE_MAX;
+	double best_tmin = 0;
 
-	// Looping over 3 dimensions
-//	for (int i = 0; i < 3; ++i) {
-//		double a = 1 / r._dir._xyz[i];
-//		if (a >= 0) {
-//			tmin[i] = a * (min._xyz[i] - e._xyz[i]);
-//			tmax[i] = a * (max._xyz[i] - e._xyz[i]);
-//		} else {
-//			tmax[i] = a * (min._xyz[i] - e._xyz[i]);
-//			tmin[i] = a * (max._xyz[i] - e._xyz[i]);
-//		}
-//		if (tmin[i] > best_tmin)
-//			best_tmin = tmin[i];
-//		if (tmax[i] < best_tmax)
-//			best_tmax = tmax[i];
-//		if (best_tmin > best_tmax)
-//			return false;
-//	}
 	double a = 1 / r._dir._xyz[0];
 	if(a >= 0) {
 		txmin = a * (_bbox._xmin - e._xyz[0]);
@@ -178,7 +159,7 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 		txmax = a * (_bbox._xmin - e._xyz[0]);
 		txmin = a * (_bbox._xmax - e._xyz[0]);
 	}
-	if(txmin < best_tmin)
+	if(txmin > best_tmin)
 		best_tmin = txmin;
 	double tymin, tymax;
 	double b = 1 / r._dir._xyz[1];
@@ -191,8 +172,8 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	}
 	if(txmin > tymax || tymin > txmax)
 		return false;
-	if(tymin < best_tmin)
-			best_tmin = tymin;
+	if(tymin > best_tmin)
+		best_tmin = tymin;
 	double tzmin, tzmax;
 	double c = 1 / r._dir._xyz[2];
 	if(c >= 0) {
@@ -207,13 +188,12 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 		return false;
 	if(tymin > tzmax || tzmin > tymax)
 		return false;
-	if(tzmin < best_tmin)
-			best_tmin = tzmin;
+	if(tzmin > best_tmin)
+		best_tmin = tzmin;
 //	double best_tmin = std::min(txmin, std::min(tymin, tzmin));
 
 	if(mode == BBOX_ONLY_MODE) {
 		Vector3 normal;
-//		Vector3 d = r._dir;
 		// See which surface we intersected and set the normal in accordance
 		if (best_tmin == txmin) // x plane
 			normal = (r._dir._xyz[0] > 0) ? Vector3(-1, 0, 0) : Vector3(1, 0, 0);
@@ -221,9 +201,9 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 			normal = (r._dir._xyz[1] > 0) ? Vector3(0, -1, 0) : Vector3(0, 1, 0);
 		else // z plane
 			normal = (r._dir._xyz[2] > 0) ? Vector3(0, 0, -1) : Vector3(0, 0, 1);
-
 		Point pt = e + best_tmin * r._dir;
 		in.set(best_tmin, pt, normal);
+		return true;
 	}
 	in.setT(best_tmin);
 	return true;
@@ -313,16 +293,6 @@ void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::
 
 BBox BBoxNode::combineBBoxes(const BBox &b1, const BBox &b2) const {
 
-//	Point b1_min = b1._min, b1_max = b1._max,
-//		  b2_min = b2._min, b2_max = b2._max;
-//	Point best_min (std::min(b1_min[0], b2_min[0]),
-//					std::min(b1_min[1], b2_min[1]),
-//					std::min(b1_min[2], b2_min[2]));
-//	Point best_max (std::max(b1_max[0], b2_max[0]),
-//					std::max(b1_max[1], b2_max[1]),
-//					std::max(b1_max[2], b2_max[2]));
-//	Point center = static_cast<Point> (0.5 * (best_max - best_min));
-//	return BBox(best_min, best_max, center);
 	double xi = std::min(b1._xmin, b2._xmin);
 	double yi = std::min(b1._ymin, b2._ymin);
 	double zi = std::min(b1._zmin, b2._zmin);
