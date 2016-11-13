@@ -201,6 +201,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		} else {
 			double d_dot_N = r._dir.dotproduct(N);
 			Vector3 refl_dir = r._dir - (2 * d_dot_N) * N;
+			refl_dir.normalize();
 			Ray refl_r(intersection, refl_dir);
 			Vector3 refl_rgb = L(refl_r, recursive_limit - 1,
 			STEP_NUM, DOUBLE_MAX,
