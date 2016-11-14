@@ -35,7 +35,7 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 }
 
 bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
-	if (!this->checkbox(r, in))
+	if (!_bbox.checkbox(r, in))
 		return false;
 	else {
 		if (mode == BBOX_ONLY_MODE)
@@ -71,7 +71,7 @@ bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
 
 bool Plane::intersect(const Ray &r, Intersection &in, double &best_t) {
 
-	if (!this->checkbox(r, in))
+	if (!_bbox.checkbox(r, in))
 		return false;
 
 	// vec_d dot N
@@ -99,7 +99,7 @@ bool Plane::intersect(const Ray &r, Intersection &in, double &best_t) {
 
 bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 
-	if (!this->checkbox(r, in))
+	if (!_bbox.checkbox(r, in))
 		return false;
 	else {
 		if (mode == BBOX_ONLY_MODE)
@@ -142,7 +142,7 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 	}
 }
 
-bool Surface::checkbox(const Ray& r, Intersection& in) const {
+bool BBox::checkbox(const Ray& r, Intersection& in) const {
 
 	if(mode == SLOW_MODE)
 		return true;
@@ -153,22 +153,22 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 
 	double a = 1 / r._dir._xyz[0];
 	if(a >= 0) {
-		txmin = a * (_bbox._xmin - e._xyz[0]);
-		txmax = a * (_bbox._xmax - e._xyz[0]);
+		txmin = a * (_xmin - e._xyz[0]);
+		txmax = a * (_xmax - e._xyz[0]);
 	} else {
-		txmax = a * (_bbox._xmin - e._xyz[0]);
-		txmin = a * (_bbox._xmax - e._xyz[0]);
+		txmax = a * (_xmin - e._xyz[0]);
+		txmin = a * (_xmax - e._xyz[0]);
 	}
 	if(txmin > best_tmin)
 		best_tmin = txmin;
 	double tymin, tymax;
 	double b = 1 / r._dir._xyz[1];
 	if(b >= 0) {
-		tymin = b * (_bbox._ymin - e._xyz[1]);
-		tymax = b * (_bbox._ymax - e._xyz[1]);
+		tymin = b * (_ymin - e._xyz[1]);
+		tymax = b * (_ymax - e._xyz[1]);
 	} else {
-		tymax = b * (_bbox._ymin - e._xyz[1]);
-		tymin = b * (_bbox._ymax - e._xyz[1]);
+		tymax = b * (_ymin - e._xyz[1]);
+		tymin = b * (_ymax - e._xyz[1]);
 	}
 	if(txmin > tymax || tymin > txmax)
 		return false;
@@ -177,11 +177,11 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 	double tzmin, tzmax;
 	double c = 1 / r._dir._xyz[2];
 	if(c >= 0) {
-		tzmin = c * (_bbox._zmin - e._xyz[2]);
-		tzmax = c * (_bbox._zmax - e._xyz[2]);
+		tzmin = c * (_zmin - e._xyz[2]);
+		tzmax = c * (_zmax - e._xyz[2]);
 	} else {
-		tzmax = c * (_bbox._zmin - e._xyz[2]);
-		tzmin = c * (_bbox._zmax - e._xyz[2]);
+		tzmax = c * (_zmin - e._xyz[2]);
+		tzmin = c * (_zmax - e._xyz[2]);
 	}
 
 	if(txmin > tzmax || tzmin > txmax)
@@ -210,7 +210,7 @@ bool Surface::checkbox(const Ray& r, Intersection& in) const {
 }
 
 bool BBoxNode::intersect(const Ray &r, Intersection &in, double &best_t) {
-	if(checkbox(r, in) and in.getT() < best_t) {
+	if(_bbox.checkbox(r, in) and in.getT() < best_t) {
 		bool left_in, right_in;
 		Intersection left_rec, right_rec;
 		left_in = (_left != nullptr) and (_left->intersect(r, left_rec, best_t)) and (left_rec.getT() > STEP_NUM);

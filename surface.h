@@ -18,9 +18,9 @@ class Intersection {
     public:
 		Intersection() {
 			_intersected = false;
-//			_t = DOUBLE_MAX;
-//			_intersectionPoint = Point();
-//			_surfaceid = -1;
+			_t = DOUBLE_MAX;
+			_intersectionPoint = Point();
+			_surfaceid = -1;
 		}
 		void set(const double t, const Point &pt, const Vector3 &normal) {
 			_t = t;  _normal = normal; _intersected = true;
@@ -61,20 +61,12 @@ public:
 		_x = x; _y = y; _z = z;
 	}
 	void addEpsilon() {
-//		double e = STEP_NUM;
-//		_min = Point (_min._xyz[0] - e, _min._xyz[1] - e, _min._xyz[2] - e);
-//		_max = Point (_max._xyz[0] + e, _max._xyz[1] + e, _max._xyz[2] + e);
 		_xmin -= STEP_NUM; _ymin -= STEP_NUM; _zmin -= STEP_NUM;
 		_xmax += STEP_NUM; _ymax += STEP_NUM; _zmax += STEP_NUM;
 	}
+    bool checkbox(const Ray&, Intersection&) const;
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax;
 	double _x, _y, _z;
-//	Point getMin() const { return _min; }
-//	Point getMax() const { return _max; }
-//	Point getCenter() const { return _center; }
-//private:
-//	Point _min, _max, _center;
-//	int _surfaceid;
 };
 
 
@@ -93,7 +85,7 @@ public:
     virtual std::ostream& doprint(std::ostream &os) const = 0;
     int materialid() const { return _materialid; }
     void setmaterialid(const int materialid) { _materialid = materialid; }
-    virtual bool checkbox(const Ray&, Intersection&) const;
+//    bool checkbox(const Ray&, Intersection&) const;
     BBox getBBox() { return _bbox; }
     BBox _bbox; // TODO: is this OOP?
 
@@ -133,12 +125,12 @@ class Plane : public Surface {
     	{
     	}
         virtual bool intersect(const Ray&, Intersection&, double&) override;
-        virtual bool checkbox(const Ray&, Intersection&) const override {
-        	if(mode == SLOW_MODE)
-        		return true;
-        	else
-        		return false;
-        }
+//        virtual bool checkbox(const Ray&, Intersection&) const override {
+//        	if(mode == SLOW_MODE)
+//        		return true;
+//        	else
+//        		return false;
+//        }
         virtual std::ostream& doprint(std::ostream &os) const override {
             os << _normal <<  " " << _d;
             return os;
