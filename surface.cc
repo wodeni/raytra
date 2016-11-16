@@ -21,10 +21,6 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 	double xmax = max( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
 	double ymax = max( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
 	double zmax = max( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
-//	Point min (xmin, ymin, zmin);
-//	Point max (xmax, ymax, zmax);
-//	// TODO: is the center correct?
-//	Point center (
 	double x = (xmax - xmin) * 0.5;
 	double y = (ymax - ymin) * 0.5;
 	double z = (zmax - zmin) * 0.5;
@@ -70,9 +66,6 @@ bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
 }
 
 bool Plane::intersect(const Ray &r, Intersection &in, double &best_t) {
-
-	if (!_bbox.checkbox(r, in))
-		return false;
 
 	// vec_d dot N
 	double dotproduct = r._dir.dotproduct(_normal);

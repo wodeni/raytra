@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <limits>
 #include <cassert>
+#include <stdlib.h>
 
 using namespace Imf;
 using namespace std;
@@ -61,6 +62,8 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 	std::cout << "Rendering";
 
 	int printProgress = _pw * _ph / 10;
+
+	srand(1);
 
 	Array2D<Rgba> res;
 
