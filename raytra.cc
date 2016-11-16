@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
 //	}
 //	assert(mode != 0);
 
-	if(argc != 4) {
+	if(argc != 5) {
 		cerr << "usage: raytra scenefilename outputfilename camsamples shadowsamples" << endl;
 		return -1;
 	}
