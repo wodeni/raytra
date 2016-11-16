@@ -92,6 +92,17 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 				iss >> rgb;
 				lights.push_back(new AmbientLight(rgb));
 				ambientcount++;
+			} else if (cmd == "s"){
+				Point pos;
+				double len;
+				Vector3 dir, udir, color;
+				iss >> pos >> dir >> udir >> len >> color;
+				lights.push_back(new AreaLight(pos, dir, udir, len, color));
+				cout << "got a area light with position : " << pos
+					 << ", and direction: " << dir
+					 << ", and u-direction: " << udir
+					 << ", and length: " << len << "mm"
+					 << ", and color: " << color << endl;
 			} else {
 				cout << "Parser error: invalid light at line " << line << endl;
 			}

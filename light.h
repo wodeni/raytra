@@ -68,6 +68,30 @@ private:
 
 };
 
+class AreaLight : public Light {
+public:
+	AreaLight(const Point position,
+			const Vector3 direction,
+			const Vector3 udirection,
+			double len, const
+			Vector3 color) {
+		_position = position;
+		_color = color;
+		_len = len;
+		_udirection = udirection;
+		_direction = direction;
+	}
+
+	virtual Vector3 getColor() const override { return _color; }
+
+	virtual bool isAmbient() override { return false; }
+
+private:
+	Vector3 _color;
+	double _len;
+	Vector3 _direction;
+	Vector3 _udirection;
+};
 
 
 
