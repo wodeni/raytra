@@ -23,7 +23,7 @@ class Camera {
         void initCamera (Point&, Vector3&, double&, 
                 double&, double&, int&, int&);
         ~Camera();
-        Ray construct_ray (int, int);
+        Ray construct_ray (double, double);
         void render(const char filename[],
                 std::vector< Surface *> &surfaces,
                 std::vector< Material *> &materials,

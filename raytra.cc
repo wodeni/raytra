@@ -39,7 +39,7 @@ std::ostream &operator<<(std::ostream &os, const Camera &c) {
 }
 
 /* Construct a ray given the (i,j)th pixel */
-Ray Camera::construct_ray(int i, int j) {
+Ray Camera::construct_ray(double i, double j) {
 	// Compute the coordinates of the pixel center
 	double r, l, t, b, u, v;
 	Vector3 dir;
@@ -68,8 +68,6 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
 			Vector3(0, 0, 0));
 	materials.push_back(yellow);
-
-	// Construct the BVH tree
 
 
 	res.resizeErase(_ph, _pw);
