@@ -19,6 +19,8 @@
 #define BBOX_ONLY_MODE 33
 
 extern int mode;
+extern int CAMSAMPLES;
+extern int SHADOWSAMPLES;
 static const double DOUBLE_MAX = std::numeric_limits<double>::max();
 static const double DOUBLE_MIN = std::numeric_limits<double>::min();
 

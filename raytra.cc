@@ -12,6 +12,8 @@ using namespace Imf;
 using namespace std;
 
 int mode = 0;
+int CAMSAMPLES = 0;
+int SHADOWSAMPLES = 0;
 
 void Camera::initCamera(Point &pos, Vector3 &dir, double &d, double &iw,
 		double &ih, int &pw, int &ph) {
@@ -227,20 +229,31 @@ int main(int argc, char **argv) {
 	 * If 2 args, proceed with BVH tree
 	 * If 3 args and 3rd arg == 0, do not use BVH
 	 * If 3 args and 3rd arg == 1, render the bboxes
-	 */
-	if (argc < 3 || argc > 4) {
-		cerr << "usage: raytra scenefilename outputfilename" << endl;
+//	 */
+//	if (argc < 3 || argc > 4) {
+//		cerr << "usage: raytra scenefilename outputfilename" << endl;
+//		return -1;
+//	} else if (argc == 4) {
+//		if (atoi(argv[3]) == 0) {
+//			mode = SLOW_MODE;
+//		} else {
+//			mode = BBOX_ONLY_MODE;
+//		}
+//	} else {
+//		mode = NORMAL_MODE;
+//	}
+//	assert(mode != 0);
+
+	if(argc != 4) {
+		cerr << "usage: raytra scenefilename outputfilename camsamples shadowsamples" << endl;
 		return -1;
-	} else if (argc == 4) {
-		if (atoi(argv[3]) == 0) {
-			mode = SLOW_MODE;
-		} else {
-			mode = BBOX_ONLY_MODE;
-		}
-	} else {
-		mode = NORMAL_MODE;
 	}
-	assert(mode != 0);
+
+	// Set the sample numbers
+	CAMSAMPLES = atoi(argv[3]);
+	SHADOWSAMPLES = atoi(argv[4]);
+	// Now use the normal (BVH) mode by default
+	mode = NORMAL_MODE;
 
 	Camera cam;
 	std::vector<Light *> lights;
