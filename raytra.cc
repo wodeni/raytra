@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <limits>
 #include <cassert>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace Imf;
 using namespace std;
@@ -42,7 +42,7 @@ std::ostream &operator<<(std::ostream &os, const Camera &c) {
 }
 
 /* Construct a ray given the (i,j)th pixel */
-Ray Camera::construct_ray(double i, double j) {
+Ray Camera::construct_ray_center(double i, double j) {
 	// Compute the coordinates of the pixel center
 	double r, l, t, b, u, v;
 	Vector3 dir;
@@ -58,6 +58,21 @@ Ray Camera::construct_ray(double i, double j) {
 	return Ray(_eye, dir);
 }
 
+Ray Camera::construct_ray(double i, double j, double x_offset, double y_offset) {
+	double r, l, t, b, u, v;
+	Vector3 dir;
+	r = _iw / 2.0;
+	l = -1.0 * r;
+	t = _ih / 2.0;
+	b = -1.0 * t;
+	u = l + _iw * (i + x_offset) / _pw;
+	v = b + _ih * (j + y_offset) / _ph;
+	dir = (u * _u + v * _v + (-1 * _d) * (_w));
+	dir.normalize();
+	return Ray(_eye, dir);
+}
+
+
 void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 		std::vector<Material *> &materials, std::vector<Light *> &lights, BBoxNode *root) {
 
@@ -65,7 +80,7 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 
 	int printProgress = _pw * _ph / 10;
 
-	srand(1);
+	srand(1); // Seed the random generator, as required by hw1.6
 
 	Array2D<Rgba> res;
 
@@ -73,7 +88,6 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
 			Vector3(0, 0, 0));
 	materials.push_back(yellow);
-
 
 	res.resizeErase(_ph, _pw);
 
@@ -87,10 +101,24 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 
 			Rgba& px = res[_ph - 1 - j][i]; // the current px in the picture
 
-			// Construct ray
-			Ray r = construct_ray(i, j);
-			Vector3 rgb = L(r, 20, 0.001, DOUBLE_MAX,
-			REGULAR_RAY, surfaces, materials, lights, root);
+
+			Vector3 rgb(0, 0, 0);
+
+			for(int p = 0; p < CAMSAMPLES; p++) {
+				for(int q = 0; q < CAMSAMPLES; q++) {
+
+					// generate two random numbers between 0 and 1
+					double x_offset =  (p + ((double)rand() / RAND_MAX)) / CAMSAMPLES;
+					double y_offset =  (q + ((double)rand() / RAND_MAX)) / CAMSAMPLES;
+
+					// Construct ray
+//					Ray r = construct_ray(i, j, 0.5, 0.5);
+					Ray r = construct_ray(i, j, x_offset, y_offset);
+					rgb += L(r, 20, 0.001, DOUBLE_MAX, REGULAR_RAY, surfaces, materials, lights, root) *
+							(1 / (double)(CAMSAMPLES * CAMSAMPLES));
+				}
+			}
+
 			px.r = rgb._xyz[0];
 			px.g = rgb._xyz[1];
 			px.b = rgb._xyz[2];
@@ -277,6 +305,18 @@ int main(int argc, char **argv) {
 		lights.push_back(defaultLight);
 		std::cout << "No lights! Using default light instead" << std::endl;
 	}
+
+
+#if VERBOSE
+	if(mode == NORMAL_MODE)
+		cout << "Rendering using BVH mode" << endl;
+	cout << "Primary ray samples: " << CAMSAMPLES * CAMSAMPLES << endl;
+	cout << "Shadow ray samples: " << SHADOWSAMPLES * SHADOWSAMPLES << endl;
+	cout << "Number of surfaces: " << surfaces.size() << endl;
+	cout << "Number of lights: " << lights.size() << endl;
+//	cout << "Number of Nodes in BVH tree: "
+#endif
+
 	cam.render(argv[2], surfaces, materials, lights, root);
 
 	// Dealloctating the memory

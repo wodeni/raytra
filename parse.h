@@ -13,6 +13,7 @@
 #include "material.h"
 #include "basemath.h"
 #include "light.h"
+#include "constants.h"
 
 using namespace std;
 

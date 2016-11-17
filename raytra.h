@@ -23,12 +23,13 @@ class Camera {
         void initCamera (Point&, Vector3&, double&, 
                 double&, double&, int&, int&);
         ~Camera();
-        Ray construct_ray (double, double);
+        Ray construct_ray_center (double, double);
         void render(const char filename[],
                 std::vector< Surface *> &surfaces,
                 std::vector< Material *> &materials,
                 std::vector< Light * > &lights,
 				BBoxNode *root);
+        Ray construct_ray(double, double, double, double);
         void writeRgba(const char filename[], Imf::Rgba *pixels);
         Point getPosition() const { return _eye; }
         Vector3 L (Ray& r,

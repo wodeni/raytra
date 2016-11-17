@@ -11,8 +11,6 @@
 
 #include "raytra.h" // Do the actual include here
 
-#define DEBUG 0
-
 using namespace std;
 
 void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
@@ -45,7 +43,7 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 			double r;
 			iss >> pos >> r;
 			cursurface = new Sphere(pos, r);
-#if DEBUG
+#if VERBOSE
 			cout << "got a sphere with ";
 			cout << "Position: " << pos << " Radius: " << r << endl;
 #endif
@@ -69,7 +67,7 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 			int pw, ph;
 			iss >> pos >> dir >> d >> iw >> ih >> pw >> ph;
 			cam.initCamera(pos, dir, d, iw, ih, pw, ph);
-#if DEBUG
+#if VERBOSE
 			cout << "got a camera with ";
 			cout << "Position: " << pos << " Direction: " << dir << " Focal length: " << d << " Film size: " << iw << "x" << ih << endl;
 			cout << "Output size: " << pw << "x" << ph << endl;
@@ -139,7 +137,7 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 	assert(cameracount == 1);
 	// As specified in hw 1.3, only one ambient light is permitted
 	assert(ambientcount <= 1);
-#if DEBUG 
+#if VERBOSE
 	cout << "Summary: " << surfaces.size() << " surfaces scanned " << materials.size() << " materials scanned" << endl;
 #endif
 }
@@ -216,9 +214,9 @@ void Parser::read_wavefront_file(const char *file, std::vector<Surface *> &trian
 	}
 
 	in.close();
-
-	//   std::cout << "found this many tris, verts: " << tris.size () / 3.0 << "  " << verts.size () / 3.0 << std::endl;
-
+#if VERBOSE
+	   std::cout << "found this many tris, verts: " << tris.size () / 3.0 << "  " << verts.size () / 3.0 << std::endl;
+#endif
 	for (int i = 0; i < tris.size() / 3.0; ++i) {
 		Point a (verts[3*tris[3*i]], verts[3*tris[3*i]+1], verts[3*tris[3*i]+2]);
 		Point b (verts[3*tris[3*i+1]], verts[3*tris[3*i+1]+1], verts[3*tris[3*i+1]+2]);
