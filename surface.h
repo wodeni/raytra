@@ -85,6 +85,10 @@ public:
     virtual std::ostream& doprint(std::ostream &os) const = 0;
     int materialid() const { return _materialid; }
     void setmaterialid(const int materialid) { _materialid = materialid; }
+    virtual bool checkshadow(const Ray& r, Intersection& in, double& best_t) {
+    	return intersect(r, in, best_t);
+    }
+
 //    bool checkbox(const Ray&, Intersection&) const;
     BBox getBBox() { return _bbox; }
     BBox _bbox; // TODO: is this OOP?
@@ -162,6 +166,8 @@ class BBoxNode : public Surface {
 public:
     virtual ~BBoxNode();
 	virtual bool intersect(const Ray&, Intersection&, double&) override;
+//	bool checkshadow(const Ray&, Intersection&, double&);
+virtual bool checkshadow(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override { return os; }
     void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
     BBox combineBBoxes(const BBox &, const BBox &) const;

@@ -202,6 +202,28 @@ bool BBox::checkbox(const Ray& r, Intersection& in) const {
 	return true;
 }
 
+//bool BBoxNode::checkshadow(const Ray& r, Intersection& in, double& best_t) {
+bool BBoxNode::checkshadow(const Ray& r, Intersection& in, double& best_t) {
+	if(_bbox.checkbox(r, in) and in.getT() < best_t) {
+		Intersection left_rec;
+//		bool left_in = (_left != nullptr) and (_left->intersect(r, left_rec, best_t)) and (left_rec.getT() > STEP_NUM);
+		bool left_in = (_left != nullptr) and (_left->checkshadow(r, left_rec, best_t)) and (left_rec.getT() > STEP_NUM);
+		if(left_in) {
+			in = left_rec;
+			return true;
+		}
+		Intersection right_rec;
+//		bool right_in = (_right != nullptr) and (_right->intersect(r, right_rec, best_t)) and (right_rec.getT() > STEP_NUM);
+		bool right_in = (_right != nullptr) and (_right->checkshadow(r, right_rec, best_t)) and (right_rec.getT() > STEP_NUM);
+		if(right_in) {
+			in = right_rec;
+			return true;
+		}
+	}
+	return false;
+}
+
+
 bool BBoxNode::intersect(const Ray &r, Intersection &in, double &best_t) {
 	if(_bbox.checkbox(r, in) and in.getT() < best_t) {
 		bool left_in, right_in;

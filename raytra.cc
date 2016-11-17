@@ -150,7 +150,9 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		} else {
 			Intersection in;
 			double best_t = DOUBLE_MAX;
-			if (root->intersect(r, in, best_t)
+//			if (root->intersect(r, in, best_t)
+//					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
+			if (root->checkshadow(r, in, best_t)
 					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
 				return Vector3(0, 0, 0);
 			} else {
