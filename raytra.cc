@@ -204,10 +204,36 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		Vector3 rgb(0., 0., 0.);
 		for (Light *light : lights) {
 
+			Vector3 L_e = light->getColor();
+
 			// If the light is ambient, only add the piecewise multiply of the ambient light's power
 			// times the material's diffuse color (Kd).
 			if (light->isAmbient() && ray_type == REGULAR_RAY) {
-				rgb += m->diff().pieceMultiply(light->getColor());
+//				rgb += m->diff().pieceMultiply(light->getColor());
+				rgb += m->diff().pieceMultiply(L_e);
+				continue;
+			}
+
+			if(light->isArea()) {
+				AreaLight *light_area = (AreaLight *)light;
+				for(int p = 0; p < SHADOWSAMPLES; p++) {
+					for(int q = 0; q < SHADOWSAMPLES; q++) {
+						double x_offset =  (p + ((double)rand() / RAND_MAX)) / SHADOWSAMPLES;
+						double y_offset =  (q + ((double)rand() / RAND_MAX)) / SHADOWSAMPLES;
+						Vector3 l = light_area->createSample(x_offset, y_offset) - intersection;
+						double d_length = l.length();
+						double d2 = d_length * d_length;
+						l.normalize();
+						Vector3 L_e = light->getColor();
+						// Generate shadow ray fron hit point to the light source
+						Ray shadow_ray(intersection, l);
+						Vector3 l_rgb = L(shadow_ray, 1, STEP_NUM, d_length, SHADOW_RAY, surfaces, materials, lights, root);
+						if (l_rgb.length() != 0.) {
+							double minus_l_dot_n = (-1.0 * l).dotproduct(light_area->getNormal());
+							rgb += m->computeShading(l, e, N, L_e) * (1.0 / d2) * (1.0 / (SHADOWSAMPLES * SHADOWSAMPLES)) * minus_l_dot_n;
+						}
+					}
+				}
 				continue;
 			}
 
@@ -215,7 +241,6 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			double d_length = l.length();
 			double d2 = d_length * d_length;
 			l.normalize();
-			Vector3 L_e = light->getColor();
 
 			// Generate shadow ray fron hit point to the light source
 			Ray shadow_ray(intersection, l);

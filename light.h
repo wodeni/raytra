@@ -20,6 +20,8 @@ public:
 
 	virtual bool isAmbient() = 0;
 
+	virtual bool isArea() = 0;
+
 	Point getPosition() const { return _position; }
 
 protected:
@@ -41,6 +43,8 @@ public:
 
 	virtual bool isAmbient() override { return false; }
 
+	virtual bool isArea() override { return false; }
+
 
 private:
 
@@ -61,6 +65,8 @@ public:
 
 	virtual bool isAmbient() override { return true; }
 
+	virtual bool isArea() override { return false; }
+
 
 private:
 
@@ -78,19 +84,38 @@ public:
 		_position = position;
 		_color = color;
 		_len = len;
-		_udirection = udirection;
+		_u = udirection;
 		_direction = direction;
+		_v = _u.crossproduct(_direction);
+		_v.normalize();
+		// 	Precompute the coordinate of the lower left corner
+		Vector3 offset = (-1.0 *_len / 2) * _u + (-1.0 * _len / 2) * _v;
+		_lowerleft = offset + position;
 	}
 
 	virtual Vector3 getColor() const override { return _color; }
 
 	virtual bool isAmbient() override { return false; }
 
+	virtual bool isArea() override { return true; }
+
+	Vector3 getNormal() const { return _direction; }
+
+	Point createSample(double ru, double rv) {
+		Point newPos = ru * _u * _len + rv * _v * _len + _lowerleft;
+#if VERBOSE
+//		cout << "Generated a sample on area light: " << newPos << ", Center of the light is: " << _position << endl;
+#endif
+		return newPos;
+	}
+
+
 private:
 	Vector3 _color;
 	double _len;
 	Vector3 _direction;
-	Vector3 _udirection;
+	Vector3 _u, _v;
+	Point _lowerleft;
 };
 
 
