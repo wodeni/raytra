@@ -4,3 +4,4 @@
 .settings/
 outputs/
 test.sh
+oracle_*
