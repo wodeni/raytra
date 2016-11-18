@@ -21,10 +21,13 @@
 #define REGION_X 284
 #define REGION_Y 322
 #define STEP_NUM 0.0001
+#define RECURSION_MAX 20
 
 extern int mode;
 extern int CAMSAMPLES;
 extern int SHADOWSAMPLES;
+extern int COUNT;
+extern int COUNT2;
 static const double DOUBLE_MAX = std::numeric_limits<double>::max();
 static const double DOUBLE_MIN = std::numeric_limits<double>::min();
 

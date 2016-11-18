@@ -6,6 +6,9 @@
 #include <iostream>
 #include <cmath>
 
+int COUNT = 0;
+int COUNT2 = 0;
+
 Triangle::Triangle(Point p1, Point p2, Point p3)
 		: _p1(p1), _p2(p2), _p3(p3)
 {
@@ -202,18 +205,15 @@ bool BBox::checkbox(const Ray& r, Intersection& in) const {
 	return true;
 }
 
-//bool BBoxNode::checkshadow(const Ray& r, Intersection& in, double& best_t) {
 bool BBoxNode::checkshadow(const Ray& r, Intersection& in, double& best_t) {
 	if(_bbox.checkbox(r, in) and in.getT() < best_t) {
 		Intersection left_rec;
-//		bool left_in = (_left != nullptr) and (_left->intersect(r, left_rec, best_t)) and (left_rec.getT() > STEP_NUM);
 		bool left_in = (_left != nullptr) and (_left->checkshadow(r, left_rec, best_t)) and (left_rec.getT() > STEP_NUM);
 		if(left_in) {
 			in = left_rec;
 			return true;
 		}
 		Intersection right_rec;
-//		bool right_in = (_right != nullptr) and (_right->intersect(r, right_rec, best_t)) and (right_rec.getT() > STEP_NUM);
 		bool right_in = (_right != nullptr) and (_right->checkshadow(r, right_rec, best_t)) and (right_rec.getT() > STEP_NUM);
 		if(right_in) {
 			in = right_rec;
@@ -297,7 +297,6 @@ void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::
 		BBoxNode *leftnode = new BBoxNode();
 		BBoxNode *rightnode = new BBoxNode();
 		leftnode->createTree(begin, begin + (N / 2), ((AXIS + 1) % 3));
-		// TODO: do we have to do the plus one here?
 		rightnode->createTree(begin + (N / 2), end, ((AXIS + 1) % 3));
 		_left = leftnode;
 		_right = rightnode;

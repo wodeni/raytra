@@ -77,18 +77,9 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 		std::vector<Material *> &materials, std::vector<Light *> &lights, BBoxNode *root) {
 
 	std::cout << "Rendering";
-
 	int printProgress = _pw * _ph / 10;
-
-	srand(1); // Seed the random generator, as required by hw1.6
-
+	srand(1); // Seed the random generator, as required by hw1.5
 	Array2D<Rgba> res;
-
-	// The yellow material used to debug is pushed to the tail of the vector
-	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
-			Vector3(0, 0, 0));
-	materials.push_back(yellow);
-
 	res.resizeErase(_ph, _pw);
 
 	for (int i = 0; i < _pw; ++i) {
@@ -101,7 +92,6 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 
 			Rgba& px = res[_ph - 1 - j][i]; // the current px in the picture
 
-
 			Vector3 rgb(0, 0, 0);
 
 			for(int p = 0; p < CAMSAMPLES; p++) {
@@ -112,13 +102,11 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 					double y_offset =  (q + ((double)rand() / RAND_MAX)) / CAMSAMPLES;
 
 					// Construct ray
-//					Ray r = construct_ray(i, j, 0.5, 0.5);
 					Ray r = construct_ray(i, j, x_offset, y_offset);
-					rgb += L(r, 20, 0.001, DOUBLE_MAX, REGULAR_RAY, surfaces, materials, lights, root) *
+					rgb += L(r, RECURSION_MAX, STEP_NUM, DOUBLE_MAX, REGULAR_RAY, surfaces, materials, lights, root) *
 							(1 / (double)(CAMSAMPLES * CAMSAMPLES));
 				}
 			}
-
 			px.r = rgb._xyz[0];
 			px.g = rgb._xyz[1];
 			px.b = rgb._xyz[2];
@@ -132,60 +120,31 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		int ray_type, std::vector<Surface *> &surfaces,
 		std::vector<Material *> &materials, std::vector<Light *> &lights,
 		BBoxNode *root) {
-
+	// Base case
 	if (recursive_limit == 0)
 		return Vector3(0, 0, 0);
 
+	// Shadow ray
 	if (ray_type == SHADOW_RAY) {
-		if(mode == SLOW_MODE) {
-			double NOTUSED = DOUBLE_MIN;
-			for (Surface* s : surfaces) {
-				Intersection in;
-				if (s->intersect(r, in, NOTUSED)
-						&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
-					return Vector3(0, 0, 0);
-				}
-			}
-			return Vector3(1, 1, 1);
+		Intersection in;
+		double best_t = DOUBLE_MAX;
+		if (root->checkshadow(r, in, best_t)
+				&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
+			return Vector3(0, 0, 0);
 		} else {
-			Intersection in;
-			double best_t = DOUBLE_MAX;
-//			if (root->intersect(r, in, best_t)
-//					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
-			if (root->checkshadow(r, in, best_t)
-					&& (in.getT() > STEP_NUM && in.getT() < max_t)) {
-				return Vector3(0, 0, 0);
-			} else {
-				// TODO: any non-zero value is good?
-				return Vector3(1, 1, 1);
-			}
+			return Vector3(1, 1, 1);
 		}
 	}
 
 	double best_t = DOUBLE_MAX;
-	Intersection best_in, tmp;
+	Intersection best_in;
 	int m_id = 0;
 
 	// Intersect the scene
-	if(mode == SLOW_MODE) {
-		double NOTUSED = DOUBLE_MIN;
-		for (Surface *obj : surfaces) {
-			if (obj->intersect(r, tmp, NOTUSED)) {
-				double t = tmp.getT();
-				if (t > min_t && t < best_t && t < max_t) {
-					best_t = t;
-					best_in = tmp;
-					m_id = obj->materialid();
-				}
-			}
-		}
-	} else {
-		if (root->intersect(r, tmp, best_t)) {
-			double t = tmp.getT();
-			if (t > min_t && t < max_t) {
-				best_in = tmp;
-				m_id = root->materialid();
-			}
+	if (root->intersect(r, best_in, best_t)) {
+		double t = best_in.getT();
+		if (t > min_t && t < max_t) {
+			m_id = root->materialid();
 		}
 	}
 
@@ -211,7 +170,6 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			// If the light is ambient, only add the piecewise multiply of the ambient light's power
 			// times the material's diffuse color (Kd).
 			if (light->isAmbient() && ray_type == REGULAR_RAY) {
-//				rgb += m->diff().pieceMultiply(light->getColor());
 				rgb += m->diff().pieceMultiply(L_e);
 				continue;
 			}
@@ -243,17 +201,15 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			double d_length = l.length();
 			double d2 = d_length * d_length;
 			l.normalize();
-
 			// Generate shadow ray fron hit point to the light source
 			Ray shadow_ray(intersection, l);
-			Vector3 l_rgb = L(shadow_ray, 1,
-			STEP_NUM, d_length,
-			SHADOW_RAY, surfaces, materials, lights, root);
+			Vector3 l_rgb = L(shadow_ray, 1, STEP_NUM, d_length, SHADOW_RAY, surfaces, materials, lights, root);
 			if (l_rgb.length() != 0.) {
 				rgb += m->computeShading(l, e, N, L_e) * (1.0 / d2);
 			}
 		}
 
+		// Reflective case
 		if (!(m->reflective())) {
 			return rgb;
 		} else {
@@ -261,12 +217,9 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 			Vector3 refl_dir = r._dir - (2 * d_dot_N) * N;
 			refl_dir.normalize();
 			Ray refl_r(intersection, refl_dir);
-			Vector3 refl_rgb = L(refl_r, recursive_limit - 1,
-			STEP_NUM, DOUBLE_MAX,
-			REFLECT_RAY, surfaces, materials, lights, root);
+			Vector3 refl_rgb = L(refl_r, recursive_limit - 1, STEP_NUM, DOUBLE_MAX, REFLECT_RAY, surfaces, materials, lights, root);
 			return rgb + m->refl().pieceMultiply(refl_rgb);
 		}
-
 	} else {
 		// If there is no intersection, set the current pixel to black
 		return Vector3(0, 0, 0);
@@ -280,25 +233,6 @@ void Camera::writeRgba(const char filename[], Rgba *pixels) {
 }
 
 int main(int argc, char **argv) {
-	/**
-	 * If 2 args, proceed with BVH tree
-	 * If 3 args and 3rd arg == 0, do not use BVH
-	 * If 3 args and 3rd arg == 1, render the bboxes
-//	 */
-//	if (argc < 3 || argc > 4) {
-//		cerr << "usage: raytra scenefilename outputfilename" << endl;
-//		return -1;
-//	} else if (argc == 4) {
-//		if (atoi(argv[3]) == 0) {
-//			mode = SLOW_MODE;
-//		} else {
-//			mode = BBOX_ONLY_MODE;
-//		}
-//	} else {
-//		mode = NORMAL_MODE;
-//	}
-//	assert(mode != 0);
-
 	if(argc != 5) {
 		cerr << "usage: raytra scenefilename outputfilename camsamples shadowsamples" << endl;
 		return -1;
@@ -325,6 +259,10 @@ int main(int argc, char **argv) {
 	BBoxNode* root = new BBoxNode();
 	root->createTree(surfaces.begin(), surfaces.end(), 0);
 
+	// The yellow material used to debug is pushed to the tail of the vector
+	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
+			Vector3(0, 0, 0));
+	materials.push_back(yellow);
 
 	Vector3 lightcolor(1., 1., 1.);
 	if (lights.size() == 0) {
@@ -346,14 +284,13 @@ int main(int argc, char **argv) {
 
 	cam.render(argv[2], surfaces, materials, lights, root);
 
+	cout << "Total count: " << COUNT << endl;
+	cout << "Total count2: " << COUNT2 << endl;
 	// Dealloctating the memory
 	for (Material* m : materials) {
 		delete m;
 	}
 	materials.clear();
-//	for (Surface* s : surfaces) {
-//		delete s;
-//	}
 	surfaces.clear();
 	for (Light* l : lights) {
 		delete l;
