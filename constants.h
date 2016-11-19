@@ -17,12 +17,13 @@
 #define SLOW_MODE 22
 #define BBOX_ONLY_MODE 33
 
-#define VERBOSE 1
+#define VERBOSE 0
 #define REGION_X 284
 #define REGION_Y 322
 #define STEP_NUM 0.0001
 #define RECURSION_MAX 20
 #define BACKSIDE_YELLOW 1
+#define USE_SMOOTH_NORMAL 1
 
 extern int mode;
 extern int CAMSAMPLES;

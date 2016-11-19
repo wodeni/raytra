@@ -36,7 +36,7 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 
 }
 
-Triangle::Triangle (Point p1, Point p2, Point p3, int v1, int v2, int v3, vector<Vector3> *normals, bool isMesh)
+Triangle::Triangle (Point p1, Point p2, Point p3, int v1, int v2, int v3, vector<Vector3 *> *normals, bool isMesh)
 		: _p1(p1), _p2(p2), _p3(p3)
 {
 	_v1 = v1;
@@ -173,27 +173,19 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 			return false;
 
 		// Intersection FOUND
-		Vector3 normal; // the normal to be returned
+		Vector3 normal(0, 0, 0); // the normal to be returned
 		Point pt = r._origin + (t * r._dir); // Intersection point to be returned
 
 		// If this trig is a part of a mesh, do smooth normal
 		if(_isMesh) {
-			normal += _normals->at(_v1) * (1.0 - beta - gamma);
-			normal += _normals->at(_v2) * beta;
-			normal += _normals->at(_v3) * gamma;
-//			normal += _normals->at(_v1);
-//		normal += _normals->at(_v2);
-//		normal += _normals->at(_v3);
+#if USE_SMOOTH_NORMAL
+			normal += *_normals->at(_v1) * (1.0 - beta - gamma);
+			normal += *_normals->at(_v2) * beta;
+			normal += *_normals->at(_v3) * gamma;
 			normal.normalize();
-//			normal = _geometricnormal;
-			if(_normals->at(_v1).length() != 1.0 )
-				cout <<_normals->at(_v1) <<endl;
-			if(_normals->at(_v1).length() != 1.0)
-							cout <<_normals->at(_v1) <<endl;
-			if(_normals->at(_v1).length() != 1.0)
-							cout <<_normals->at(_v1) <<endl;
-//			if(normal.length() == 0)
-//				cout << normal << endl;
+#else
+			normal = _geometricnormal;
+#endif
 		} else {
 			normal = _geometricnormal;
 		}

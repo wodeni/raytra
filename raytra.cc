@@ -142,12 +142,7 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 //	int m_id = 0;
 
 	// Intersect the scene
-//	if (root->intersect(r, best_in, best_t)) {
-//		double t = best_in.getT();
-//		if (t > min_t && t < max_t) {
-//			m_id = root->materialid();
-//		}
-//	}
+
 	root->intersect(r, best_in, best_t);
 
 	if (best_in.Intersected()) {
@@ -157,13 +152,12 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 		Vector3 N = best_in.getNormal();
 		Point intersection = best_in.getIntersectionPoint();
 
-		Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
+#if VERBOSE
+		if(best_in.getNormal().length() == 0)
+			cout << "a normal with length zero!" << endl;
+#endif
 
-//		// If the camera is pointing to the back of the surface, color it yellow
-//		if (e.dotproduct(N) < 0.) {
-//			m = materials.back();
-//			N = -1.0 * N;
-//		}
+		Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
 
 		Vector3 rgb(0., 0., 0.);
 		for (Light *light : lights) {
@@ -257,34 +251,20 @@ int main(int argc, char **argv) {
 	materials.push_back(defaultMaterial);
 
 	Parser parser;
-	vector<Vector3> normals;
+	vector<Vector3 *> normals;
 	parser.parse(argv[1], surfaces, materials, lights, normals, cam);
 	for(int i = 0; i < normals.size(); ++i) {
-		assert (normals[i].length() - 1 < STEP_NUM);
+		assert (normals[i]->length() - 1 < STEP_NUM);
 	}
 
 
-#if VERBOSE
-	cout << "Creating BVH tree..." << endl;
 	BBoxNode* root = new BBoxNode();
 	root->createTree(surfaces, 0, surfaces.size() - 1, 0); // TODO: minus 1?
+
+#if VERBOSE
 	cout << "BVH tree created" << endl;
 	cout << "Number of Nodes in the tree: " << root->countNodes() << endl;
 #endif
-
-	{
-//		cout << *root << endl;
-//		cout << *(root->_left) << endl;
-//		cout << *(root->_right) <<endl;
-//		cout << *(static_cast<BBoxNode *>(root->_left)->_right) << endl;
-//		cout << *(static_cast<BBoxNode *>(root->_right)->_right) <<endl;
-//		cout << "Number of Nodes in the tree: " << root->countNodes() << endl;
-//		Ray r = cam.construct_ray_center(0 , 0);
-//		Intersection in;
-//		root->getBBox().checkbox(r,	in);
-//		cout << "Checkbox: " <<  in.getT() << endl;
-	}
-
 
 	// The yellow material used to debug is pushed to the tail of the vector
 	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
@@ -303,18 +283,19 @@ int main(int argc, char **argv) {
 #if VERBOSE
 	if(mode == NORMAL_MODE)
 		cout << "Rendering using BVH mode" << endl;
-	cout << "Primary ray samples: " << CAMSAMPLES * CAMSAMPLES << endl;
-	cout << "Shadow ray samples: " << SHADOWSAMPLES * SHADOWSAMPLES << endl;
-	cout << "Number of surfaces: " << surfaces.size() << endl;
-	cout << "Number of lights: " << lights.size() << endl;
-//	cout << "Number of Nodes in BVH tree: "
+		cout << "Primary ray samples: " << CAMSAMPLES * CAMSAMPLES << endl;
+		cout << "Shadow ray samples: " << SHADOWSAMPLES * SHADOWSAMPLES << endl;
+		cout << "Number of surfaces: " << surfaces.size() << endl;
+		cout << "Number of lights: " << lights.size() << endl;
+	//	cout << "Number of Nodes in BVH tree: "
 #endif
 
 	cam.render(argv[2], surfaces, materials, lights, root);
 
 	cout << "Number of Nodes in the tree: " << root->countNodes() << endl;
-	cout << "Total count: " << COUNT << endl;
-	cout << "Total count2: " << COUNT2 << endl;
+//	cout << "Total count: " << COUNT << endl;
+//	cout << "Total count2: " << COUNT2 << endl;
+
 	// Dealloctating the memory
 	for (Material* m : materials) {
 		delete m;
@@ -325,5 +306,8 @@ int main(int argc, char **argv) {
 		delete l;
 	}
 	lights.clear();
+	for(Vector3 *v : normals)
+		delete v;
+	normals.clear();
 	delete root;
 }

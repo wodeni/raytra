@@ -157,10 +157,10 @@ class Plane : public Surface {
 class Triangle : public Surface {
 public:
 	Triangle (Point p1, Point p2, Point p3);
-	Triangle (Point p1, Point p2, Point p3, int v1, int v2, int v3, vector<Vector3> *normals, bool isMesh);
+	Triangle (Point p1, Point p2, Point p3, int v1, int v2, int v3, vector<Vector3 *> *normals, bool isMesh);
     virtual bool intersect(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override {
-//        os << _p1 <<  " " << _p2 << " " << _p3;
+        os << _p1 <<  " " << _p2 << " " << _p3;
         return os;
     }
     Vector3 getGeometricNormal() const { return _geometricnormal; }
@@ -168,7 +168,7 @@ private:
 	Point _p1, _p2, _p3;
     int _v1, _v2, _v3;
 //    vector<double> *_verts;
-    vector<Vector3> *_normals;
+    vector<Vector3 *> *_normals;
 	double a, b, c, d, e, f;
 	Vector3 _geometricnormal;
 	bool _isMesh;

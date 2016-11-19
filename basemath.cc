@@ -3,7 +3,7 @@
 #include <cassert>
 
 Vector3::Vector3() {
-//    _xyz[0] = _xyz[1] = _xyz[2] = 0.0;
+    _xyz[0] = _xyz[1] = _xyz[2] = 0.0;
 }
 
 Vector3::Vector3(double a, double b, double c) {
@@ -78,7 +78,7 @@ void Vector3::operator+=(const Vector3 &rhs) {
 }
 
 Point::Point() {
-//    _xyz[0] = _xyz[1] = _xyz[2] = 0.0;
+    _xyz[0] = _xyz[1] = _xyz[2] = 0.0;
 }
 
 Point::Point(double a, double b, double c) {

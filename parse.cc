@@ -15,7 +15,7 @@ using namespace std;
 
 void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 		std::vector<Material *> &materials, std::vector<Light *> &lights,
-		std::vector<Vector3> &normals,
+		std::vector<Vector3 *> &normals,
 		Camera &cam) {
 	ifstream in(file);
 	char buffer[1025];
@@ -127,28 +127,29 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 #if VERBOSE
 	   std::cout << "found this many tris, verts: " << tris.size () / 3.0 << "  " << verts.size () / 3.0 << std::endl;
 #endif
+	   	   	int start = normals.size();
 			for(int i = 0; i < verts.size() / 3.0; ++i)
-				normals.push_back(Vector3(0, 0, 0));
+				normals.push_back(new Vector3(0., 0., 0.));
 			for (int i = 0; i < tris.size() / 3.0; ++i) {
-				int v1 = tris[3*i];
-				int v2 = tris[3*i+1];
-				int v3 = tris[3*i+2];
+				int v1 = start + tris[3*i];
+				int v2 = start + tris[3*i+1];
+				int v3 = start + tris[3*i+2];
+
 				Point a (verts[3*tris[3*i]], verts[3*tris[3*i]+1], verts[3*tris[3*i]+2]);
 				Point b (verts[3*tris[3*i+1]], verts[3*tris[3*i+1]+1], verts[3*tris[3*i+1]+2]);
 				Point c (verts[3*tris[3*i+2]], verts[3*tris[3*i+2]+1], verts[3*tris[3*i+2]+2]);
 				Triangle *tri = new Triangle(a, b, c, v1, v2, v3, &normals, true);
-				normals[v1] += tri->getGeometricNormal();
-				normals[v2] += tri->getGeometricNormal();
-				normals[v3] += tri->getGeometricNormal();
+				*normals[v1] += tri->getGeometricNormal();
+				*normals[v2] += tri->getGeometricNormal();
+				*normals[v3] += tri->getGeometricNormal();
 				triangles.push_back(tri);
 			}
-#if VERBOSE
-			cout << "Normalizing smoothed normals..." << endl;
-#endif
+
 			for(int i = 0; i < normals.size(); ++i) {
-				normals[i].normalize();
+				if(normals[i]->length() > 0.)
+					normals[i]->normalize();
 			}
-			assert(normals.size() == verts.size() / 3.0);
+
 			for(Surface *t : triangles) {
 				t->setmaterialid(currentMaterial);
 				surfaces.push_back(t);
