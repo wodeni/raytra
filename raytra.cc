@@ -14,6 +14,7 @@ using namespace std;
 int mode = 0;
 int CAMSAMPLES = 0;
 int SHADOWSAMPLES = 0;
+int YELLOW_INDEX = -1;
 
 void Camera::initCamera(Point &pos, Vector3 &dir, double &d, double &iw,
 		double &ih, int &pw, int &ph) {
@@ -138,29 +139,31 @@ Vector3 Camera::L(Ray& r, int recursive_limit, double min_t, double max_t,
 
 	double best_t = DOUBLE_MAX;
 	Intersection best_in;
-	int m_id = 0;
+//	int m_id = 0;
 
 	// Intersect the scene
-	if (root->intersect(r, best_in, best_t)) {
-		double t = best_in.getT();
-		if (t > min_t && t < max_t) {
-			m_id = root->materialid();
-		}
-	}
+//	if (root->intersect(r, best_in, best_t)) {
+//		double t = best_in.getT();
+//		if (t > min_t && t < max_t) {
+//			m_id = root->materialid();
+//		}
+//	}
+	root->intersect(r, best_in, best_t);
 
 	if (best_in.Intersected()) {
 
-		Material *m = materials[m_id];
+//		Material *m = materials[m_id];
+		Material *m = materials[best_in.getMaterialId()];
 		Vector3 N = best_in.getNormal();
 		Point intersection = best_in.getIntersectionPoint();
 
 		Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
 
-		// If the camera is pointing to the back of the surface, color it yellow
-		if (e.dotproduct(N) < 0.) {
-			m = materials.back();
-			N = -1.0 * N;
-		}
+//		// If the camera is pointing to the back of the surface, color it yellow
+//		if (e.dotproduct(N) < 0.) {
+//			m = materials.back();
+//			N = -1.0 * N;
+//		}
 
 		Vector3 rgb(0., 0., 0.);
 		for (Light *light : lights) {
@@ -254,10 +257,20 @@ int main(int argc, char **argv) {
 	materials.push_back(defaultMaterial);
 
 	Parser parser;
-	parser.parse(argv[1], surfaces, materials, lights, cam);
+	vector<Vector3> normals;
+	parser.parse(argv[1], surfaces, materials, lights, normals, cam);
+	for(int i = 0; i < normals.size(); ++i) {
+		assert (normals[i].length() - 1 < STEP_NUM);
+	}
 
+
+#if VERBOSE
+	cout << "Creating BVH tree..." << endl;
 	BBoxNode* root = new BBoxNode();
-	root->createTree(surfaces.begin(), surfaces.end(), 0);
+	root->createTree(surfaces, 0, surfaces.size() - 1, 0); // TODO: minus 1?
+	cout << "BVH tree created" << endl;
+	cout << "Number of Nodes in the tree: " << root->countNodes() << endl;
+#endif
 
 	{
 //		cout << *root << endl;
@@ -277,6 +290,7 @@ int main(int argc, char **argv) {
 	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
 			Vector3(0, 0, 0));
 	materials.push_back(yellow);
+	YELLOW_INDEX = materials.size() - 1;
 
 	Vector3 lightcolor(1., 1., 1.);
 	if (lights.size() == 0) {

@@ -16,8 +16,45 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 	Vector3 def = _p1 - _p3; // a - c
 	a = abc._xyz[0], b = abc._xyz[1], c = abc._xyz[2];
 	d = def._xyz[0], e = def._xyz[1], f = def._xyz[2];
-	_normal = (-1.0 * abc).crossproduct(-1.0 * def);
-	_normal.normalize();
+	_geometricnormal = (-1.0 * abc).crossproduct(-1.0 * def);
+	_geometricnormal.normalize();
+	double xmin = min( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
+	double ymin = min( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
+	double zmin = min( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
+	double xmax = max( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
+	double ymax = max( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
+	double zmax = max( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
+	double x = (xmax + xmin) * 0.5;
+	double y = (ymax + ymin) * 0.5;
+	double z = (zmax + zmin) * 0.5;
+	_isMesh = false;
+	_normals = nullptr;
+	_v1 = _v2 = _v3 = -1;
+
+	_bbox = BBox(xmin, ymin, zmin, xmax, ymax, zmax, x, y, z);
+	_bbox.addEpsilon();
+
+}
+
+Triangle::Triangle (Point p1, Point p2, Point p3, int v1, int v2, int v3, vector<Vector3> *normals, bool isMesh)
+		: _p1(p1), _p2(p2), _p3(p3)
+{
+	_v1 = v1;
+	_v2 = v2;
+	_v3 = v3;
+//	_verts = verts;
+	_normals = normals;
+	_isMesh = isMesh;
+//	Point p1(_verts[v1], _verts[v1 + 1], _verts[v1 + 2]);
+//	Point p2(_verts[v2], _verts[v2 + 1], _verts[v2 + 2]);
+//	Point p3(_verts[v3], _verts[v3 + 1], _verts[v3 + 2]);
+
+	Vector3 abc = p1 - p2; // a - b
+	Vector3 def = p1 - p3; // a - c
+	a = abc._xyz[0], b = abc._xyz[1], c = abc._xyz[2];
+	d = def._xyz[0], e = def._xyz[1], f = def._xyz[2];
+	_geometricnormal = (-1.0 * abc).crossproduct(-1.0 * def);
+	_geometricnormal.normalize();
 	double xmin = min( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
 	double ymin = min( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
 	double zmin = min( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
@@ -30,8 +67,8 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 
 	_bbox = BBox(xmin, ymin, zmin, xmax, ymax, zmax, x, y, z);
 	_bbox.addEpsilon();
-
 }
+
 
 bool Sphere::intersect(const Ray &r, Intersection &in, double &best_t) {
 	if (!_bbox.checkbox(r, in))
@@ -113,6 +150,10 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 		if (M == 0)
 			return false;
 
+//		Point _p1(_verts[_v1], _verts[_v1 + 1], _verts[_v1 + 2]);
+//		Point p2(_verts[v2], _verts[v2 + 1], _verts[v2 + 2]);
+//		Point p3(_verts[v3], _verts[v3 + 1], _verts[v3 + 2]);
+
 		Vector3 jkl = _p1 - r._origin; // a - e
 
 		double j = jkl._xyz[0], k = jkl._xyz[1], l = jkl._xyz[2];
@@ -131,8 +172,42 @@ bool Triangle::intersect(const Ray& r, Intersection &in, double &best_t) {
 		if (beta < 0 or beta > (1 - gamma))
 			return false;
 
-		Point pt = r._origin + (t * r._dir);
-		in.set(t, pt, _normal);
+		// Intersection FOUND
+		Vector3 normal; // the normal to be returned
+		Point pt = r._origin + (t * r._dir); // Intersection point to be returned
+
+		// If this trig is a part of a mesh, do smooth normal
+		if(_isMesh) {
+			normal += _normals->at(_v1) * (1.0 - beta - gamma);
+			normal += _normals->at(_v2) * beta;
+			normal += _normals->at(_v3) * gamma;
+//			normal += _normals->at(_v1);
+//		normal += _normals->at(_v2);
+//		normal += _normals->at(_v3);
+			normal.normalize();
+//			normal = _geometricnormal;
+			if(_normals->at(_v1).length() != 1.0 )
+				cout <<_normals->at(_v1) <<endl;
+			if(_normals->at(_v1).length() != 1.0)
+							cout <<_normals->at(_v1) <<endl;
+			if(_normals->at(_v1).length() != 1.0)
+							cout <<_normals->at(_v1) <<endl;
+//			if(normal.length() == 0)
+//				cout << normal << endl;
+		} else {
+			normal = _geometricnormal;
+		}
+		in.setMaterialId(_materialid);
+
+#if BACKSIDE_YELLOW
+		Vector3 e = -1.0 * r._dir; // Direction of the ray already normalized
+		// If the camera is pointing to the back of the surface, color it yellow
+		if (e.dotproduct(_geometricnormal) < 0.) { // using the GROMETRIC normal here
+			in.setMaterialId(YELLOW_INDEX);
+			normal = -1.0 * normal;
+		}
+#endif
+		in.set(t, pt, normal);
 		if(t < best_t && t > STEP_NUM) best_t = t;
 		return true;
 	}
@@ -186,7 +261,6 @@ bool BBox::checkbox(const Ray& r, Intersection& in) const {
 		return false;
 	if(tzmin > best_tmin)
 		best_tmin = tzmin;
-//	double best_tmin = std::min(txmin, std::min(tymin, tzmin));
 
 	if(mode == BBOX_ONLY_MODE) {
 		Vector3 normal;
@@ -202,6 +276,8 @@ bool BBox::checkbox(const Ray& r, Intersection& in) const {
 		return true;
 	}
 	in.setT(best_tmin);
+	if(_materialid != -1)
+		in.setMaterialId(_materialid);
 	return true;
 }
 
@@ -233,19 +309,19 @@ bool BBoxNode::intersect(const Ray &r, Intersection &in, double &best_t) {
 		if(left_in and right_in) {
 			if(left_rec.getT() < right_rec.getT()) {
 				in = left_rec;
-				_materialid = _left->materialid();
+//				_materialid = _left->materialid();
 			} else {
 				in = right_rec;
-				_materialid = _right->materialid();
+//				_materialid = _right->materialid();
 			}
 			return true;
 		} else if(left_in) {
 			in = left_rec;
-			_materialid = _left->materialid();
+//			_materialid = _left->materialid();
 			return true;
 		} else if(right_in) {
 			in = right_rec;
-			_materialid = _right->materialid();
+//			_materialid = _right->materialid();
 			return true;
 		} else {
 			return false;
@@ -265,43 +341,49 @@ bool comp_Z(Surface *a, Surface *b) {
 	return a->_bbox._z < b->_bbox._z;
 }
 
-void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end,  int AXIS) {
-	size_t N = end - begin;
-	if(N == 1) {
+//void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end,  int AXIS) {
+void BBoxNode::createTree(vector<Surface *> &list, int l, int r, int AXIS) {
+	if(l == r) {
 		// Only one surface in the list
-		_left = *begin;
+		_left = list[l];
 		_right = nullptr;
 		_bbox = _left->getBBox();
-	} else if(N == 2) {
-		// Two surfaces in the list
-		_left = *begin;
-		_right = *(begin + 1);
-		_bbox = combineBBoxes(_left->getBBox(), _right->getBBox());
-	} else {
-		// more than two surfaces in the list
-		// sort the list by the centers of BBoxes
-		switch(AXIS) {
-		case 0:
-			std::sort(begin, end, comp_X);
-			break;
-		case 1:
-			std::sort(begin, end, comp_Y);
-			break;
-		case 2:
-			std::sort(begin, end, comp_Z);
-			break;
-		default:
-			break;
+		_left->_bbox.setMaterialId(_left->materialid());
+	} else if(l < r) {
+		if(r == l + 1) {
+			// Two surfaces in the list
+			_left = list[l];
+			_right = list[r];
+			_bbox = combineBBoxes(_left->getBBox(), _right->getBBox());
+			_left->_bbox.setMaterialId(_left->materialid());
+			_right->_bbox.setMaterialId(_right->materialid());
+		} else {
+			int mid = l + (r - l) / 2;
+			// more than two surfaces in the list
+			// sort the list by the centers of BBoxes
+			switch(AXIS) {
+			case 0:
+				std::sort(list.begin() + l, list.begin() + r + 1, comp_X);
+				break;
+			case 1:
+				std::sort(list.begin() + l, list.begin() + r + 1, comp_Y);
+				break;
+			case 2:
+				std::sort(list.begin() + l, list.begin() + r + 1, comp_Z);
+				break;
+			default:
+				break;
+			}
+			// Split the vector and recursive calls on both children
+			BBoxNode *leftnode = new BBoxNode();
+			BBoxNode *rightnode = new BBoxNode();
+			leftnode->createTree(list, l, mid, ((AXIS + 1) % 3));
+			rightnode->createTree(list, mid + 1, r, ((AXIS + 1) % 3));
+			_left = leftnode;
+			_right = rightnode;
+			// combine the BBoxes of the children
+			_bbox = combineBBoxes(_left->getBBox(), _right->getBBox());
 		}
-		// Split the vector and recursive calls on both children
-		BBoxNode *leftnode = new BBoxNode();
-		BBoxNode *rightnode = new BBoxNode();
-		leftnode->createTree(begin, begin + (N / 2), ((AXIS + 1) % 3));
-		rightnode->createTree(begin + (N / 2), end, ((AXIS + 1) % 3));
-		_left = leftnode;
-		_right = rightnode;
-		// combine the BBoxes of the children
-		_bbox = combineBBoxes(_left->getBBox(), _right->getBBox());
 	}
 }
 

@@ -28,6 +28,8 @@ class Intersection {
 		}
 		int surfaceid() const { return _surfaceid; }
         void setsurfaceid(const int id) { _surfaceid = id; }
+        int getMaterialId() const { return _materialid; }
+        void setMaterialId(const int id) { _materialid = id; }
         bool Intersected() const { return _intersected; }
         void setIntersected(const bool& flag) { _intersected = flag; }
         double getT() const { return _t; }
@@ -45,6 +47,7 @@ class Intersection {
         Vector3 _normal; // the geometric normal
         Point _intersectionPoint; // the intersection points
         int _surfaceid; // used to look up material
+        int _materialid;
         bool _intersected; // boolean showing whether there is an intersection
 };
 
@@ -59,14 +62,17 @@ public:
 		_xmin = xi; _ymin = yi; _zmin = zi;
 		_xmax = xa; _ymax = ya; _zmax = za;
 		_x = x; _y = y; _z = z;
+		_materialid = -1;
 	}
 	void addEpsilon() {
 		_xmin -= STEP_NUM; _ymin -= STEP_NUM; _zmin -= STEP_NUM;
 		_xmax += STEP_NUM; _ymax += STEP_NUM; _zmax += STEP_NUM;
 	}
     bool checkbox(const Ray&, Intersection&) const;
+    void setMaterialId(const int id) { _materialid = id; }
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax;
 	double _x, _y, _z;
+	int _materialid;
     friend std::ostream &operator<<(std::ostream &os, const BBox &b) {
     	os << b._xmin <<  " " << b._xmax << " " << b._ymin << " " << b._ymax << " " << b._zmin << " " << b._zmax<< endl;
         return os;
@@ -151,15 +157,21 @@ class Plane : public Surface {
 class Triangle : public Surface {
 public:
 	Triangle (Point p1, Point p2, Point p3);
+	Triangle (Point p1, Point p2, Point p3, int v1, int v2, int v3, vector<Vector3> *normals, bool isMesh);
     virtual bool intersect(const Ray&, Intersection&, double&) override;
     virtual std::ostream& doprint(std::ostream &os) const override {
-        os << _p1 <<  " " << _p2 << " " << _p3;
+//        os << _p1 <<  " " << _p2 << " " << _p3;
         return os;
     }
+    Vector3 getGeometricNormal() const { return _geometricnormal; }
 private:
 	Point _p1, _p2, _p3;
+    int _v1, _v2, _v3;
+//    vector<double> *_verts;
+    vector<Vector3> *_normals;
 	double a, b, c, d, e, f;
-	Vector3 _normal;
+	Vector3 _geometricnormal;
+	bool _isMesh;
 };
 
 
@@ -176,7 +188,8 @@ virtual bool checkshadow(const Ray&, Intersection&, double&) override;
     	cout << _bbox << endl;
     	return os;
     }
-    void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
+//    void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
+    void createTree(vector<Surface *> &list, int l, int r, int AXIS);
     BBox combineBBoxes(const BBox &, const BBox &) const;
     int countNodes();
 //private:

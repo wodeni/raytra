@@ -15,6 +15,7 @@ using namespace std;
 
 void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 		std::vector<Material *> &materials, std::vector<Light *> &lights,
+		std::vector<Vector3> &normals,
 		Camera &cam) {
 	ifstream in(file);
 	char buffer[1025];
@@ -117,12 +118,42 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 		} else if (cmd == "w") {
 			string filename;
 			iss >> filename;
+			vector<int> tris;
+			vector<float> verts;
 			vector <Surface *> triangles;
-			read_wavefront_file(filename.c_str(), triangles);
+
+//			read_wavefront_file(filename.c_str(), triangles);
+			read_wavefront_file(filename.c_str(), tris, verts);
+#if VERBOSE
+	   std::cout << "found this many tris, verts: " << tris.size () / 3.0 << "  " << verts.size () / 3.0 << std::endl;
+#endif
+			for(int i = 0; i < verts.size() / 3.0; ++i)
+				normals.push_back(Vector3(0, 0, 0));
+			for (int i = 0; i < tris.size() / 3.0; ++i) {
+				int v1 = tris[3*i];
+				int v2 = tris[3*i+1];
+				int v3 = tris[3*i+2];
+				Point a (verts[3*tris[3*i]], verts[3*tris[3*i]+1], verts[3*tris[3*i]+2]);
+				Point b (verts[3*tris[3*i+1]], verts[3*tris[3*i+1]+1], verts[3*tris[3*i+1]+2]);
+				Point c (verts[3*tris[3*i+2]], verts[3*tris[3*i+2]+1], verts[3*tris[3*i+2]+2]);
+				Triangle *tri = new Triangle(a, b, c, v1, v2, v3, &normals, true);
+				normals[v1] += tri->getGeometricNormal();
+				normals[v2] += tri->getGeometricNormal();
+				normals[v3] += tri->getGeometricNormal();
+				triangles.push_back(tri);
+			}
+#if VERBOSE
+			cout << "Normalizing smoothed normals..." << endl;
+#endif
+			for(int i = 0; i < normals.size(); ++i) {
+				normals[i].normalize();
+			}
+			assert(normals.size() == verts.size() / 3.0);
 			for(Surface *t : triangles) {
 				t->setmaterialid(currentMaterial);
 				surfaces.push_back(t);
 			}
+
 
 		} else {
 			cout << "Parser error: invalid command at line " << line << endl;
@@ -164,10 +195,10 @@ void Parser::parse(const char *file, std::vector<Surface *> &surfaces,
 // a method on it: Parser::read_wavefront_file().
 //
 
-void Parser::read_wavefront_file(const char *file, std::vector<Surface *> &triangles) {
-
-	vector<int> tris;
-	vector<float> verts;
+//void Parser::read_wavefront_file(const char *file, std::vector<Surface *> &triangles) {
+void Parser::read_wavefront_file(const char *file, vector<int> &tris, vector<float> &verts) {
+//	vector<int> tris;
+//	vector<float> verts;
 
 	ifstream in(file);
 	char buffer[1025];
@@ -217,13 +248,11 @@ void Parser::read_wavefront_file(const char *file, std::vector<Surface *> &trian
 	}
 
 	in.close();
-#if VERBOSE
-	   std::cout << "found this many tris, verts: " << tris.size () / 3.0 << "  " << verts.size () / 3.0 << std::endl;
-#endif
-	for (int i = 0; i < tris.size() / 3.0; ++i) {
-		Point a (verts[3*tris[3*i]], verts[3*tris[3*i]+1], verts[3*tris[3*i]+2]);
-		Point b (verts[3*tris[3*i+1]], verts[3*tris[3*i+1]+1], verts[3*tris[3*i+1]+2]);
-		Point c (verts[3*tris[3*i+2]], verts[3*tris[3*i+2]+1], verts[3*tris[3*i+2]+2]);
-		triangles.push_back(new Triangle(a, b, c));
-	}
+
+//	for (int i = 0; i < tris.size() / 3.0; ++i) {
+//		Point a (verts[3*tris[3*i]], verts[3*tris[3*i]+1], verts[3*tris[3*i]+2]);
+//		Point b (verts[3*tris[3*i+1]], verts[3*tris[3*i+1]+1], verts[3*tris[3*i+1]+2]);
+//		Point c (verts[3*tris[3*i+2]], verts[3*tris[3*i+2]+1], verts[3*tris[3*i+2]+2]);
+//		triangles.push_back(new Triangle(a, b, c));
+//	}
 }
