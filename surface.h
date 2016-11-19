@@ -67,6 +67,10 @@ public:
     bool checkbox(const Ray&, Intersection&) const;
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax;
 	double _x, _y, _z;
+    friend std::ostream &operator<<(std::ostream &os, const BBox &b) {
+    	os << b._xmin <<  " " << b._xmax << " " << b._ymin << " " << b._ymax << " " << b._zmin << " " << b._zmax<< endl;
+        return os;
+    }
 };
 
 
@@ -168,10 +172,14 @@ public:
 	virtual bool intersect(const Ray&, Intersection&, double&) override;
 //	bool checkshadow(const Ray&, Intersection&, double&);
 virtual bool checkshadow(const Ray&, Intersection&, double&) override;
-    virtual std::ostream& doprint(std::ostream &os) const override { return os; }
+    virtual std::ostream& doprint(std::ostream &os) const override {
+    	cout << _bbox << endl;
+    	return os;
+    }
     void createTree(vector<Surface *>::iterator begin, vector<Surface *>::iterator end, int AXIS);
     BBox combineBBoxes(const BBox &, const BBox &) const;
-private:
+    int countNodes();
+//private:
 	Surface *_left;
 	Surface *_right;
 };

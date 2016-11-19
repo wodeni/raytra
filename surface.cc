@@ -24,9 +24,9 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 	double xmax = max( {p1._xyz[0], p2._xyz[0], p3._xyz[0]} );
 	double ymax = max( {p1._xyz[1], p2._xyz[1], p3._xyz[1]} );
 	double zmax = max( {p1._xyz[2], p2._xyz[2], p3._xyz[2]} );
-	double x = (xmax - xmin) * 0.5;
-	double y = (ymax - ymin) * 0.5;
-	double z = (zmax - zmin) * 0.5;
+	double x = (xmax + xmin) * 0.5;
+	double y = (ymax + ymin) * 0.5;
+	double z = (zmax + zmin) * 0.5;
 
 	_bbox = BBox(xmin, ymin, zmin, xmax, ymax, zmax, x, y, z);
 	_bbox.addEpsilon();
@@ -305,6 +305,24 @@ void BBoxNode::createTree(vector<Surface *>::iterator begin, vector<Surface *>::
 	}
 }
 
+int BBoxNode::countNodes() {
+	int res = 1;
+	BBoxNode* tmp = nullptr;
+	if(_left != nullptr) {
+		if(!(tmp = dynamic_cast<BBoxNode *>(_left)))
+			res += 1;
+		else
+			res += tmp->countNodes();
+	}
+	if(_right != nullptr) {
+		if(!(tmp = dynamic_cast<BBoxNode *>(_right)))
+			res += 1;
+		else
+			res += tmp->countNodes();
+	}
+	return res;
+}
+
 BBox BBoxNode::combineBBoxes(const BBox &b1, const BBox &b2) const {
 
 	double xi = std::min(b1._xmin, b2._xmin);
@@ -313,9 +331,9 @@ BBox BBoxNode::combineBBoxes(const BBox &b1, const BBox &b2) const {
 	double xa = std::max(b1._xmax, b2._xmax);
 	double ya = std::max(b1._ymax, b2._ymax);
 	double za = std::max(b1._zmax, b2._zmax);
-	double x = 0.5 * (xa - xi);
-	double y = 0.5 * (ya - yi);
-	double z = 0.5 * (za - zi);
+	double x = 0.5 * (xa + xi);
+	double y = 0.5 * (ya + yi);
+	double z = 0.5 * (za + zi);
 
 	return BBox(xi, yi, zi, xa, ya, za, x, y, z);
 }

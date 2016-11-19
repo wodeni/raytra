@@ -259,6 +259,20 @@ int main(int argc, char **argv) {
 	BBoxNode* root = new BBoxNode();
 	root->createTree(surfaces.begin(), surfaces.end(), 0);
 
+	{
+//		cout << *root << endl;
+//		cout << *(root->_left) << endl;
+//		cout << *(root->_right) <<endl;
+//		cout << *(static_cast<BBoxNode *>(root->_left)->_right) << endl;
+//		cout << *(static_cast<BBoxNode *>(root->_right)->_right) <<endl;
+//		cout << "Number of Nodes in the tree: " << root->countNodes() << endl;
+//		Ray r = cam.construct_ray_center(0 , 0);
+//		Intersection in;
+//		root->getBBox().checkbox(r,	in);
+//		cout << "Checkbox: " <<  in.getT() << endl;
+	}
+
+
 	// The yellow material used to debug is pushed to the tail of the vector
 	Material* yellow = new Material(Vector3(1, 1, 0), Vector3(0, 0, 0), 0.,
 			Vector3(0, 0, 0));
@@ -284,6 +298,7 @@ int main(int argc, char **argv) {
 
 	cam.render(argv[2], surfaces, materials, lights, root);
 
+	cout << "Number of Nodes in the tree: " << root->countNodes() << endl;
 	cout << "Total count: " << COUNT << endl;
 	cout << "Total count2: " << COUNT2 << endl;
 	// Dealloctating the memory
