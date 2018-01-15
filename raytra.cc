@@ -111,6 +111,7 @@ void Camera::render(const char filename[], std::vector<Surface *> &surfaces,
 			px.r = rgb._xyz[0];
 			px.g = rgb._xyz[1];
 			px.b = rgb._xyz[2];
+            px.a = 1; // The alpha value must be 1 for everything to be visible
 		}
 	}
 	this->writeRgba(filename, &res[0][0]);

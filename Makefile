@@ -37,7 +37,7 @@ clean:
 all: clean raytra
 
 # hard-coded version
-.PHONY: hardcoded
+.PHONY: release
 hardcoded:
 	g++ -O3 *.cc -I. -I${INCLUDEDIR} -L${LIBDIR} -lIlmImf -lImath -lHalf -Wall -std=c++11 -o raytra
 

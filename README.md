@@ -1,5 +1,7 @@
 # Raytra
 
+![](samples/lamp.png)
+
 - A raytracer written in C++, featuring:
   - Blinn-phong shading
   - Reflection
@@ -27,4 +29,14 @@ open bunny.exr # `bunny.exr` is the output of the renderer
 ```
 
 Here's the output:
-![](samples/bunny.exr)
+![](samples/bunny.png)
+
+The general usage of `raytra` is:
+
+```
+./raytra <scene-filename> <output-filename> <camera-sample-count> <shadow-sample-count>
+```
+
+- `<camera-sample-count>` is the number of primary rays from the camera
+- `<shadow-sample-count>` is the number of shadow rays per pixel
+- For better performance, build `raytra` by `make release`, which does not contain the debug flag (`-g`) and has `-O3` optimization flag enabled.
