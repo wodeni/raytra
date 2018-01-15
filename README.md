@@ -29,6 +29,7 @@ open bunny.exr # `bunny.exr` is the output of the renderer
 ```
 
 Here's the output:
+
 ![](samples/bunny.png)
 
 The general usage of `raytra` is:
